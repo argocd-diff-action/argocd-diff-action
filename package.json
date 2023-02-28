@@ -1,0 +1,63 @@
+{
+  "name": "argocd-diff-action",
+  "version": "0.6.66",
+  "private": true,
+  "description": "ArgoCD Diff GitHub Action",
+  "main": "src/main.ts",
+  "pre-commit": [
+    "precommit-msg",
+    "format",
+    "lint"
+  ],
+  "scripts": {
+    "build": "ncc build",
+    "format-check": "prettier --check **.ts",
+    "format": "prettier --write **.ts",
+    "lint": "eslint src/*.ts src/**/*.ts",
+    "precommit-msg": "echo 'Running pre-commit hooks..' && exit 0",
+    "test": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ratehub/argocd-diff-action.git"
+  },
+  "keywords": [
+    "actions",
+    "node",
+    "setup",
+    "argocd"
+  ],
+  "author": "Ratehub",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/github": "^5.1.1",
+    "@actions/tool-cache": "^2.0.1",
+    "@types/node-fetch": "^2.6.2",
+    "node-fetch": "^2.6.9"
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.2",
+    "@semantic-release/commit-analyzer": "^9.0.2",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^8.0.7",
+    "@semantic-release/release-notes-generator": "^10.0.3",
+    "@types/jest": "^28.1.8",
+    "@types/sinon": "^10.0.13",
+    "@vercel/ncc": "^0.36.1",
+    "conventional-changelog-conventionalcommits": "^5.0.0",
+    "eslint": "^8.34.0",
+    "eslint-plugin-github": "^4.6.1",
+    "eslint-plugin-jest": "^27.2.1",
+    "fetch-mock-jest": "^1.5.1",
+    "jest": "^28.1.3",
+    "jest-circus": "^29.4.3",
+    "js-yaml": "^4.1.0",
+    "pre-commit": "^1.2.2",
+    "prettier": "^2.8.4",
+    "semantic-release": "^19.0.5",
+    "sinon": "^15.0.1",
+    "ts-jest": "^28.0.8",
+    "typescript": "^4.9.5"
+  }
+}

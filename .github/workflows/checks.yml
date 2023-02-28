@@ -1,0 +1,35 @@
+name: Checks
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/checks.yml'
+      - '__tests__/**'
+      - 'src/**'
+      - 'jest.config.js'
+      - 'package-lock.json'
+
+jobs:
+  test:
+    name: tests
+    runs-on: ubuntu-latest
+    if: |
+      !contains(github.event.head_commit.message, '[skip ci]')
+    permissions:
+      checks: write
+      pull-requests: write
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install NPM Dev Dependencies
+        run: |
+          npm ci
+      
+      - name: Run Tests and Check Coverage
+        uses: ArtiomTr/jest-coverage-report-action@v2

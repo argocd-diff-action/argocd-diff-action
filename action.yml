@@ -1,0 +1,28 @@
+name: 'ArgoCD Diff'
+description: 'Diffs all ArgoCD apps in the repo, and provides the diff as a PR comment'
+author: 'Ratehub'
+inputs:
+  argocd-server-fqdn: 
+    description: ArgoCD server FQDN (i.e., without the protocol)
+    required: true
+  argocd-token: 
+    description: ArgoCD token for a local or project-scoped user https://argoproj.github.io/argo-cd/operator-manual/user-management/#local-usersaccounts-v15
+    required: true
+  argocd-version: 
+    description: '`argocd` command version to install. Defaults to the server version.'
+    default: ''
+    required: false
+  github-token: 
+    description: Github Token
+    required: true
+  argocd-extra-cli-args: 
+    description: Extra arguments to pass to the argocd CLI
+    default: --grpc-web
+    required: false
+  argocd-exclude-paths: 
+    description: ArgoCD app apths to exclude in comma separated list
+    default: ''
+    required: false
+runs:
+  using: 'node16'
+  main: 'dist/index.js'

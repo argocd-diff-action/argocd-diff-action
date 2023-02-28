@@ -1,0 +1,66 @@
+{
+  "branches": [
+    "master"
+  ],
+  "plugins": [
+    ["@semantic-release/commit-analyzer", {
+      "preset": "angular",
+      "releaseRules": [
+        {"type": "build", "release": "patch"},
+        {"type": "chore", "release": "patch"},
+        {"type": "chore", "scope": "release", "release": false},
+        {"type": "ci", "release": false},
+        {"type": "docs", "release": false},
+        {"type": "feat", "release": "minor"},
+        {"type": "fix", "release": "patch"},
+        {"type": "perf", "release": "minor"},
+        {"type": "refactor", "release": "patch"},
+        {"type": "test", "release": false}
+      ]
+    }],
+    ["@semantic-release/release-notes-generator", {
+      "preset": "conventionalcommits",
+      "parserOpts": {
+        "noteKeywords": [
+          "BREAKING CHANGE",
+          "BREAKING CHANGES",
+          "BREAKING"
+        ]
+      },
+      "presetConfig": {
+        "types": [
+            {"type": "build", "section": "Build & Dependencies"},
+            {"type": "chore", "section": "Chores"},
+            {"type": "ci", "section": "Continous Integration"},
+            {"type": "docs", "section": "Documentation"},
+            {"type": "feat", "section": "Features"},
+            {"type": "fix", "section": "Bug Fixes"},
+            {"type": "perf", "section": "Performance"},
+            {"type": "refactor", "section": "Refactors"},
+            {"type": "test", "section": "Tests"}
+        ]
+      }
+    }],
+    "@semantic-release/npm",
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md"
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": [
+          "CHANGELOG.md",
+          "dist/**/*",
+          "package.json",
+          "README.md"
+        ],
+        "message": "chore(release): ${nextRelease.gitTag}\n\n${nextRelease.notes}\n\n[skip release]"
+      }
+    ],
+    "@semantic-release/github"
+  ],
+  "tagFormat": "${version}"
+}

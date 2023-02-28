@@ -1,0 +1,82 @@
+import { expect, test } from '@jest/globals';
+
+import { App } from '../../src/argocd/App';
+import { AppCollection } from '../../src/argocd/AppCollection';
+
+test('filterByRepo removes apps from other repos', () => {
+  expect(appCollection().filterByRepo('ratehub/app-one')).toStrictEqual(
+    new AppCollection([appOne()])
+  );
+});
+
+test('filterByTargetRevision removes apps not targeting the trunk', () => {
+  expect(appCollection().filterByTargetRevision()).toStrictEqual(
+    new AppCollection([appOne(), appTwo()])
+  );
+});
+
+test('filterByExcludedPath removes apps in path deploy/app-three', () => {
+  expect(appCollection().filterByExcludedPath(['deploy/app-three'])).toStrictEqual(
+    new AppCollection([appOne(), appTwo()])
+  );
+});
+
+test('filterByExcludedPath with empty ExcludedPaths returns early', () => {
+  expect(appCollection().filterByExcludedPath([])).toStrictEqual(appCollection());
+});
+
+test('getAppByName returns an App', () => {
+  expect(appCollection().getAppByName(appTwo().metadata.name)).toStrictEqual(appTwo());
+});
+
+test('getAppByName does not find a App', () => {
+  expect(appCollection().getAppByName('non-existent-app-name')).toStrictEqual(undefined);
+});
+
+function appOne(): App {
+  return {
+    metadata: {
+      name: 'app-one'
+    },
+    spec: {
+      source: {
+        repoURL: 'https://github.com/ratehub/app-one',
+        path: 'deploy/app-one',
+        targetRevision: 'HEAD',
+        helm: {},
+        kustomize: {}
+      }
+    },
+    status: {
+      sync: {
+        status: 'Synced'
+      }
+    }
+  };
+}
+
+function appTwo(): App {
+  return {
+    metadata: {
+      name: 'app-two'
+    },
+    spec: {
+      source: {
+        repoURL: 'https://github.com/ratehub/app-two',
+        path: 'deploy/app-two',
+        targetRevision: 'master',
+        helm: {},
+        kustomize: {}
+      }
+    },
+    status: {
+      sync: {
+        status: 'Synced'
+      }
+    }
+  };
+}
+
+function appCollection(): AppCollection {
+  return new AppCollection([appOne(), appTwo()]);
+}

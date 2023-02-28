@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    if: |
+      !contains(github.event.head_commit.message, '[skip ci]') &&
+      !contains(github.event.head_commit.message, '[skip release]')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          # Add token for ratehub-machine and persisten credentials so that it
+          # can push the major version tag.
+          token: ${{ secrets.GH_RATEHUB_MACHINE_TOKEN }}
+          persist-credentials: true
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install NPM Dev Dependencies
+        # Also, installs semantic-release and plugins for the release step.
+        # This allows them to be managed in the package.json and kept up to date
+        # with Dependabot.
+        run: |
+          npm ci
+
+      - name: Generate release files
+        run: |
+          npm run build
+
+      - name: Update Action Inputs/Outputs in README.md
+        # Must run before semantic-release to be included in release commit.
+        uses: mdvorak/update-action-readme@v1
+
+      - name: Run semantic-release
+        id: semantic-release
+        uses: cycjimmy/semantic-release-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_RATEHUB_MACHINE_TOKEN }}
+
+      - name: Push Floating Major Version Tag
+        if: steps.semantic-release.outputs.new_release_major_version != ''
+        run: |
+          VERSION="${{ steps.semantic-release.outputs.new_release_version }}"
+          MAJOR_VERSION="v${{ steps.semantic-release.outputs.new_release_major_version }}"
+
+          git config --global user.email "dev@ratehub.ca"
+          git config --global user.name "ratehub-machine"
+
+          echo "Creating/Updating major version tag..."
+          git tag -fa ${MAJOR_VERSION} -m "Floating major version tag. The latest release for it is: ${VERSION}" "${VERSION}"
+          git push origin ${MAJOR_VERSION} --force
