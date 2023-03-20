@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'main'
+      - '13-release-workflow'
 
 jobs:
   release:
@@ -44,6 +45,8 @@ jobs:
       - name: Run semantic-release
         id: semantic-release
         uses: cycjimmy/semantic-release-action@v3
+        with:
+          semantic_version: ^19.0.5
         env:
           GITHUB_TOKEN: ${{ secrets.GH_MOREY_TECH_BOT_TOKEN }}
 

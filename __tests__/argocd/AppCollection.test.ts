@@ -4,7 +4,7 @@ import { App } from '../../src/argocd/App';
 import { AppCollection } from '../../src/argocd/AppCollection';
 
 test('filterByRepo removes apps from other repos', () => {
-  expect(appCollection().filterByRepo('ratehub/app-one')).toStrictEqual(
+  expect(appCollection().filterByRepo('argocd-diff-action/app-one')).toStrictEqual(
     new AppCollection([appOne()])
   );
 });
@@ -40,7 +40,7 @@ function appOne(): App {
     },
     spec: {
       source: {
-        repoURL: 'https://github.com/ratehub/app-one',
+        repoURL: 'https://github.com/argocd-diff-action/app-one',
         path: 'deploy/app-one',
         targetRevision: 'HEAD',
         helm: {},
@@ -62,7 +62,7 @@ function appTwo(): App {
     },
     spec: {
       source: {
-        repoURL: 'https://github.com/ratehub/app-two',
+        repoURL: 'https://github.com/argocd-diff-action/app-two',
         path: 'deploy/app-two',
         targetRevision: 'master',
         helm: {},
