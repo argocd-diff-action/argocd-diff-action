@@ -114,6 +114,9 @@ async function run(): Promise<void> {
   // Filter Apps to those following the repo trunk, since that is what the PR is
   // comparing against (in most cases).
   core.warning('Filter App Collection');
+  if (appAllCollection == null) {
+    core.error('App Collection null');
+  }
   let appLocalCollection = appAllCollection
     .filterByRepo(`${github.context.repo.owner}/${github.context.repo.repo}`)
     .filterByTargetRevision()
