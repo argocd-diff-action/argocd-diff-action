@@ -1,6 +1,6 @@
 {
   "branches": [
-    "5-release-workflow"
+    "main"
   ],
   "plugins": [
     ["@semantic-release/commit-analyzer", {
@@ -62,5 +62,5 @@
     ],
     "@semantic-release/github"
   ],
-  "tagFormat": "5-release-workflow-${version}"
+  "tagFormat": "${version}"
 }
