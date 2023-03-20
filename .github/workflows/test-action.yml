@@ -19,9 +19,9 @@ jobs:
       - name: Build dist
         run: |
           npm ci
-          npx ncc
+          npx ncc build --source-map
 
-      - uses: ./dist
+      - uses: ./
         with:
           argocd-server-fqdn: https://wn6bfwa9q1wk9mhq.cd.akuity.cloud
           argocd-token: ${{ secrets.ARGOCD_TOKEN }}
