@@ -141,7 +141,7 @@ export class ArgoCDServer {
 
   async getAppCollectionDiffs(appCollectionDiffPromises: Promise<Diff>[]): Promise<Diff[]> {
     const diffs: Diff[] = [];
-    core.debug('Getting app collection diffs')
+    core.warning('Getting app collection diffs');
 
     let results = (await Promise.allSettled(appCollectionDiffPromises)).filter(
       result => result.status === 'fulfilled'
