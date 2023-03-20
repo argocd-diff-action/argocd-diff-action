@@ -93,7 +93,7 @@ $ npm ci
 
 Running tests locally:
 ```
-$ npm run tests
+$ npm run test
 ```
 > Note these are unit tests that, currently, cover a small porition of the code base. This will also run on every PR.
 
