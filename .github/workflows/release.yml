@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'master'
+      - '5-release-workflow'  # for testing on PR.
 
 jobs:
   release:
