@@ -96,3 +96,21 @@ Running tests locally:
 $ npm run tests
 ```
 > Note these are unit tests that, currently, cover a small porition of the code base. This will also run on every PR.
+
+
+## Creating the `release` workflow PAT
+- Created `morey-tech-bot` GitHub account to act as a service account.
+- Invited the user a as member of the `argocd-diff-action` org.
+- From the `morey-tech-bot` account,
+  - https://github.com/settings/tokens/new
+    - Forced to set Expiry on fine-grained tokens. Using classic instead.
+  - Set Note to `argocd-diff-action`
+  - Set Expiration to `No expiration`
+  - Select the `repo` scope.
+  - Click Generate Token
+- Invite `morey-tech-bot` to repo as Maintain role.
+- As a repo owner user, create the Action secret `GH_MOREY_TECH_BOT_TOKEN` and paste the token from the bot account.
+  - https://github.com/argocd-diff-action/argocd-diff-action/settings/secrets/actions/new
+  - Set Name
+  - Paste in Secret
+  - Click Add secret

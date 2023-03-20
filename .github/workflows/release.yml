@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     branches:
-      - 'master'
+      - 'main'
 
 jobs:
   release:
@@ -17,9 +17,9 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          # Add token for ratehub-machine and persisten credentials so that it
+          # Add token with repo permissions and persist credentials so that it
           # can push the major version tag.
-          token: ${{ secrets.GH_RATEHUB_MACHINE_TOKEN }}
+          token: ${{ secrets.GH_MOREY_TECH_BOT_TOKEN }}
           persist-credentials: true
 
       - uses: actions/setup-node@v2
@@ -45,7 +45,7 @@ jobs:
         id: semantic-release
         uses: cycjimmy/semantic-release-action@v3
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_RATEHUB_MACHINE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_MOREY_TECH_BOT_TOKEN }}
 
       - name: Push Floating Major Version Tag
         if: steps.semantic-release.outputs.new_release_major_version != ''
@@ -53,8 +53,8 @@ jobs:
           VERSION="${{ steps.semantic-release.outputs.new_release_version }}"
           MAJOR_VERSION="v${{ steps.semantic-release.outputs.new_release_major_version }}"
 
-          git config --global user.email "dev@ratehub.ca"
-          git config --global user.name "ratehub-machine"
+          git config --global user.email "morey-tech-bot@users.noreply.github.com"
+          git config --global user.name "morey-tech-bot"
 
           echo "Creating/Updating major version tag..."
           git tag -fa ${MAJOR_VERSION} -m "Floating major version tag. The latest release for it is: ${VERSION}" "${VERSION}"
