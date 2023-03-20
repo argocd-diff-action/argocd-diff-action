@@ -1,0 +1,30 @@
+# .github/workflows/checks.yml
+name: Checks
+
+on:
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  argocd-diff:
+    name: Generate ArgoCD Diff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Build dist
+        run: |
+          npm ci
+          npx ncc
+
+      - uses: ./dist
+        with:
+          argocd-server-fqdn: https://wn6bfwa9q1wk9mhq.cd.akuity.cloud
+          argocd-token: ${{ secrets.ARGOCD_TOKEN }}
+          github-token: ${{ secrets.GH_MOREY_TECH_BOT_TOKEN }}
+          argocd-extra-cli-args: --grpc-web
+          argocd-exclude-paths: "path/to/exclude,"
