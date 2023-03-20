@@ -1,11 +1,6 @@
 {
   "branches": [
-    { "name": "main" },
-    {
-      "name": "5-release-workflow",
-      "channel": "channel-${name}",
-      "prerelease": true
-    }
+    "5-release-workflow"
   ],
   "plugins": [
     ["@semantic-release/commit-analyzer", {
@@ -67,5 +62,5 @@
     ],
     "@semantic-release/github"
   ],
-  "tagFormat": "${version}"
+  "tagFormat": "5-release-workflow-${version}"
 }
