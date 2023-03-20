@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: codelytv/pr-size-labeler@v1
         with:
-          GITHUB_TOKEN: ${{ secrets.GH_RATEHUB_MACHINE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_MOREY_TECH_BOT_TOKEN }}
           xs_label: 'size/xs'
           xs_max_size: '10'
           s_label: 'size/s'
