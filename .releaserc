@@ -1,6 +1,6 @@
 {
   "branches": [
-    "main",
+    { "name": "main" },
     {
       "name": "5-release-workflow",
       "prerelease": true
