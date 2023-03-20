@@ -23,7 +23,7 @@ jobs:
 
       - uses: ./
         with:
-          argocd-server-fqdn: https://wn6bfwa9q1wk9mhq.cd.akuity.cloud
+          argocd-server-fqdn: wn6bfwa9q1wk9mhq.cd.akuity.cloud
           argocd-token: ${{ secrets.ARGOCD_TOKEN }}
           github-token: ${{ secrets.GH_MOREY_TECH_BOT_TOKEN }}
           argocd-extra-cli-args: --grpc-web
