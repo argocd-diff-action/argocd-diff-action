@@ -25,7 +25,7 @@ jobs:
 
       - uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '12'
 
       - name: Install NPM Dev Dependencies
         # Also, installs semantic-release and plugins for the release step.
