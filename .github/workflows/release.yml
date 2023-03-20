@@ -47,15 +47,15 @@ jobs:
         uses: cycjimmy/semantic-release-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GH_MOREY_TECH_BOT_TOKEN }}
-        with:
-          branches: |
-            [
-              'main',
-              {
-                name: '5-release-workflow',
-                prerelease: true
-              }
-            ]
+        # with:
+        #   branches: |
+        #     [
+        #       'main',
+        #       {
+        #         name: '5-release-workflow',
+        #         prerelease: true
+        #       }
+        #     ]
 
       - name: Push Floating Major Version Tag
         if: steps.semantic-release.outputs.new_release_major_version != ''

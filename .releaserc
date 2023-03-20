@@ -1,6 +1,10 @@
 {
   "branches": [
-    "main"
+    "main",
+    {
+      "name": "5-release-workflow",
+      "prerelease": true
+    }
   ],
   "plugins": [
     ["@semantic-release/commit-analyzer", {
