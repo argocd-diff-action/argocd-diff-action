@@ -102,6 +102,7 @@ export class ArgoCDServer {
     ];
 
     let responseJson = await this.api('v1/applications', [`fields=${fields.join(',')}`]);
+    core.warning(responseJson.items)
     return new AppCollection(responseJson.items);
   }
 
