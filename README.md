@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ratehub/argocd-diff-action@v0
+      - uses: argocd-diff-action/argocd-diff-action@v0
         with:
           argocd-server-fqdn: argocd.example.com
           argocd-token: ${{ secrets.ARGOCD_TOKEN }}
@@ -73,16 +73,16 @@ jobs:
 6. Posts the diff output as a comment on the PR (updating the same comment if it already exists).
 
 ## Releases & Publishing
-Releases are automated using `semantic-release` via [the `release.yml` workflow](https://github.com/ratehub/argocd-diff-action/blob/master/.github/workflows/release.yml) and [the `.releaserc` config file](https://github.com/ratehub/argocd-diff-action/blob/master/.releaserc). 
+Releases are automated using `semantic-release` via [the `release.yml` workflow](https://github.com/argocd-diff-action/argocd-diff-action/blob/master/.github/workflows/release.yml) and [the `.releaserc` config file](https://github.com/argocd-diff-action/argocd-diff-action/blob/master/.releaserc). 
 
 Each release will create a semver tag (e.g., `0.2.0`) and update the floating major version tag (e.g., `v0`) associated with it.
 
-The action is in early development (hence [the `0` major version](https://github.com/ratehub/argocd-diff-action/releases/tag/v0)), which means there may be breaking changes introduced at any time. It's suggested to pin to the semver release tag until the release of `v1`.
+The action is in early development (hence [the `0` major version](https://github.com/argocd-diff-action/argocd-diff-action/releases/tag/v0)), which means there may be breaking changes introduced at any time. It's suggested to pin to the semver release tag until the release of `v1`.
 
 ## Contributing
 All commits must conform to the Angular commit convention and be done through a PR. Given this, the use of `Rebase and merge` is preferred to capture each semantic commit in a PR in the changelog.
 
-Check [`commit-analyzer` plugin configuration](https://github.com/ratehub/argocd-diff-action/blob/master/.releaserc#L6) to see which types cause what releases. 
+Check [`commit-analyzer` plugin configuration](https://github.com/argocd-diff-action/argocd-diff-action/blob/master/.releaserc#L6) to see which types cause what releases. 
 
 ### Local Development
 

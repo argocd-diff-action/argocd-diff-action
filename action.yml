@@ -1,6 +1,6 @@
 name: 'ArgoCD Diff'
 description: 'Diffs all ArgoCD apps in the repo, and provides the diff as a PR comment'
-author: 'Ratehub'
+author: 'argocd-diff-action'
 inputs:
   argocd-server-fqdn: 
     description: ArgoCD server FQDN (i.e., without the protocol)

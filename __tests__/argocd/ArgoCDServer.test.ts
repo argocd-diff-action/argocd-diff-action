@@ -135,7 +135,7 @@ function appOne(): App {
     },
     spec: {
       source: {
-        repoURL: 'https://github.com/ratehub/app-one',
+        repoURL: 'https://github.com/argocd-diff-action/app-one',
         path: 'deploy/app-one',
         targetRevision: 'HEAD',
         helm: {},
@@ -157,7 +157,7 @@ function appTwo(): App {
     },
     spec: {
       source: {
-        repoURL: 'https://github.com/ratehub/app-two',
+        repoURL: 'https://github.com/argocd-diff-action/app-two',
         path: 'deploy/app-two',
         targetRevision: 'master',
         helm: {},
@@ -179,7 +179,7 @@ function appThree(): App {
     },
     spec: {
       source: {
-        repoURL: 'https://github.com/ratehub/app-three',
+        repoURL: 'https://github.com/argocd-diff-action/app-three',
         path: 'deploy/app-three',
         targetRevision: '1.2.1',
         helm: {},

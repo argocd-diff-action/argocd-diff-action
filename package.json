@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ratehub/argocd-diff-action.git"
+    "url": "git+https://github.com/argocd-diff-action/argocd-diff-action.git"
   },
   "keywords": [
     "actions",
@@ -27,7 +27,7 @@
     "setup",
     "argocd"
   ],
-  "author": "Ratehub",
+  "author": "argocd-diff-action",
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.10.0",
