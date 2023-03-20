@@ -3,6 +3,7 @@
     { "name": "main" },
     {
       "name": "5-release-workflow",
+      "channel": "channel-${name}",
       "prerelease": true
     }
   ],
