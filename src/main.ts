@@ -108,12 +108,12 @@ async function run(): Promise<void> {
   const argocdServer = new ArgoCDServer(ARGOCD_SERVER_FQDN, ARGOCD_TOKEN, EXTRA_CLI_ARGS);
   await argocdServer.installArgoCDCommand(VERSION, ARCH);
 
-  core.warning('Get App Collection')
+  core.warning('Get App Collection');
   let appAllCollection = await argocdServer.getAppCollection();
   // We can only run `diff --local` on files that are for this current repo.
   // Filter Apps to those following the repo trunk, since that is what the PR is
   // comparing against (in most cases).
-  core.warning('Filter App Collection')
+  core.warning('Filter App Collection');
   let appLocalCollection = appAllCollection
     .filterByRepo(`${github.context.repo.owner}/${github.context.repo.repo}`)
     .filterByTargetRevision()
