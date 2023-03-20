@@ -50,7 +50,7 @@ jobs:
         with:
           branches: |
             [
-              "main",
+              'main',
               {
                 name: '5-release-workflow',
                 prerelease: true
