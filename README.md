@@ -97,6 +97,18 @@ $ npm run tests
 ```
 > Note these are unit tests that, currently, cover a small porition of the code base. This will also run on every PR.
 
+### Dev Container
+- open dev container.
+```
+npm ci
+minikube start
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+# new terminal
+argocd admin initial-password -n argocd
+argocd login localhost:8080 --insecure --username admin
+```
 
 ## Creating the `release` workflow PAT
 - Created `morey-tech-bot` GitHub account to act as a service account.

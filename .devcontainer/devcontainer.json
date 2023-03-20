@@ -18,17 +18,21 @@
 		"ghcr.io/devcontainers/features/node:1": {
 			"version": "16"
 		},
-		"ghcr.io/devcontainers-contrib/features/typescript:2": {}
-	}
+		"ghcr.io/devcontainers-contrib/features/typescript:2": {},
+		"ghcr.io/devcontainers-contrib/features/argo-cd:1": {
+			"version": "latest"
+		}
+	},
 	
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+	"forwardPorts": [
+
+	],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "kubectl version",
+	// "postCreateCommand": "",
 
 	// Use 'postStartCommand' to run commands after the container is created like starting minikube.
-	// "postStartCommand": "nohup bash -c 'minikube start &' > minikube.log 2>&1",
+	"postStartCommand": "npm ci; nohup bash -c 'minikube start &' > minikube.log 2>&1"
 
 	// Configure tool-specific properties.
 	// "customizations": {},
