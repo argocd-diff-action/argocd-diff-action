@@ -54,7 +54,7 @@ jobs:
               {
                 name: '5-release-workflow',
                 prerelease: true
-              },
+              }
             ]
 
       - name: Push Floating Major Version Tag
