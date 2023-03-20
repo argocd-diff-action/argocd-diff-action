@@ -85,6 +85,7 @@ All commits must conform to the Angular commit convention and be done through a 
 Check [`commit-analyzer` plugin configuration](https://github.com/argocd-diff-action/argocd-diff-action/blob/master/.releaserc#L6) to see which types cause what releases. 
 
 ### Local Development
+Use Node 16.
 
 Install the dependencies without updating the lock file.
 ```
@@ -93,7 +94,7 @@ $ npm ci
 
 Running tests locally:
 ```
-$ npm run tests
+$ npm run test
 ```
 > Note these are unit tests that, currently, cover a small porition of the code base. This will also run on every PR.
 
