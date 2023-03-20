@@ -14,4 +14,4 @@ jobs:
         with:
           command: "squash and merge"
           target: minor
-          github-token: ${{ secrets.GH_RATEHUB_MACHINE_TOKEN }}
+          github-token: ${{ secrets.GH_MOREY_TECH_BOT_TOKEN }}
