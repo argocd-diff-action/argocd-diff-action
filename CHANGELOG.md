@@ -1,3 +1,15 @@
+## [0.1.2](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.1...0.1.2) (2023-03-21)
+
+
+### Documentation
+
+* **readme:** update local dev section ([#21](https://github.com/argocd-diff-action/argocd-diff-action/issues/21)) ([5341576](https://github.com/argocd-diff-action/argocd-diff-action/commit/53415764e7f086faefbc5e6183083e32ca2d8c9e))
+
+
+### Build & Dependencies
+
+* **deps-dev:** bump semantic-release from 20.1.1 to 20.1.3 ([#25](https://github.com/argocd-diff-action/argocd-diff-action/issues/25)) ([deb7987](https://github.com/argocd-diff-action/argocd-diff-action/commit/deb7987f6ecdfab2b76ebb318198d842dc6055c4))
+
 ## [0.1.1](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.0...0.1.1) (2023-03-20)
 
 
