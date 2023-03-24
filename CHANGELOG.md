@@ -1,3 +1,11 @@
+## [0.1.5](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.4...0.1.5) (2023-03-24)
+
+
+### Build & Dependencies
+
+* **deps-dev:** bump @semantic-release/changelog from 6.0.2 to 6.0.3 ([#28](https://github.com/argocd-diff-action/argocd-diff-action/issues/28)) ([dd4ac44](https://github.com/argocd-diff-action/argocd-diff-action/commit/dd4ac4461edd83b49ac113e04c8b0245c7022632))
+* **deps-dev:** bump eslint-plugin-github from 4.6.1 to 4.7.0 ([#27](https://github.com/argocd-diff-action/argocd-diff-action/issues/27)) ([2bda757](https://github.com/argocd-diff-action/argocd-diff-action/commit/2bda75773f587d0bd0fdc74fb52a0c21062e1318))
+
 ## [0.1.4](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.3...0.1.4) (2023-03-22)
 
 
