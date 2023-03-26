@@ -66,13 +66,14 @@ export class ArgoCDServer {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async api(endpoint: string, params: string[] = [], method = 'GET'): Promise<any> {
+    // core.debug(`Making API call to: '${this.fqdn}/api/${endpoint}'`);
     const url = `https://${this.fqdn}/api/${endpoint}?${params.join('&')}}`;
+    core.debug(`Making API call to: '${url}'`);
 
     // node-fetch response.json() returns `unknown`.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let responseJson: any;
 
-    core.debug(`Making API call to: '${this.fqdn}/api/${endpoint}'`);
     try {
       const response = await fetch(url, {
         method: method,
@@ -89,8 +90,8 @@ export class ArgoCDServer {
     }
 
     if (responseJson.error) {
-      core.error("Error returned by API")
-      core.error(responseJson)
+      core.error('Error returned by API');
+      core.error(responseJson);
     }
 
     return responseJson;
