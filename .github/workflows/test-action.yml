@@ -1,5 +1,5 @@
-# .github/workflows/checks.yml
-name: Checks
+# .github/workflows/test-action.yml
+name: Test Action
 
 on:
   pull_request:
