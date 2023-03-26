@@ -115,7 +115,10 @@ async function run(): Promise<void> {
   // comparing against (in most cases).
   core.warning('Filter App Collection');
   if (appAllCollection == null) {
-    core.error('App Collection null');
+    core.error('appAllCollection == null');
+  }
+  if (appAllCollection.apps == null) {
+    core.error('appAllCollection.apps == null'); // is apps null before trying to use filterByRepo?
   }
   let appLocalCollection = appAllCollection
     .filterByRepo(`${github.context.repo.owner}/${github.context.repo.repo}`)
