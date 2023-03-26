@@ -109,6 +109,10 @@ async function run(): Promise<void> {
   await argocdServer.installArgoCDCommand(VERSION, ARCH);
 
   let appAllCollection = await argocdServer.getAppCollection();
+  if (appAllCollection.apps == null) {
+    core.warning('No Applications were returned from Argo CD.');
+    return;
+  }
   // We can only run `diff --local` on files that are for this current repo.
   // Filter Apps to those following the repo trunk, since that is what the PR is
   // comparing against (in most cases).
