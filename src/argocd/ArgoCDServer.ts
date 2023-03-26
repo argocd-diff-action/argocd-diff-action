@@ -66,7 +66,6 @@ export class ArgoCDServer {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async api(endpoint: string, params: string[] = [], method = 'GET'): Promise<any> {
-    // core.debug(`Making API call to: '${this.fqdn}/api/${endpoint}'`);
     const url = `https://${this.fqdn}/api/${endpoint}?${params.join('&')}}`;
     core.debug(`Making API call to: '${url}'`);
 
