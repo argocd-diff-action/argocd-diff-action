@@ -110,7 +110,10 @@ async function run(): Promise<void> {
 
   let appAllCollection = await argocdServer.getAppCollection();
   if (appAllCollection.apps == null) {
-    core.warning('No Applications were returned from Argo CD.');
+    // When the account used for the API key does not have at least read-only, it will result in no Applications being returned.
+    core.warning(
+      'No Applications were returned from Argo CD. This may be the result of insufficient privileges.'
+    );
     return;
   }
   // We can only run `diff --local` on files that are for this current repo.
