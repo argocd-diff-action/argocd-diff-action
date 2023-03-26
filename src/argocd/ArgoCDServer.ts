@@ -78,6 +78,7 @@ export class ArgoCDServer {
         method: method,
         headers: { Cookie: `argocd.token=${this.token}` }
       });
+      core.debug(`API call response code: ${response.status}`);
       responseJson = await response.json();
     } catch (err) {
       if (err instanceof Error) {
