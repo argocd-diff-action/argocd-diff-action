@@ -88,6 +88,11 @@ export class ArgoCDServer {
       throw err;
     }
 
+    if (responseJson.error) {
+      core.error("Error returned by API")
+      core.error(responseJson)
+    }
+
     return responseJson;
   }
 
