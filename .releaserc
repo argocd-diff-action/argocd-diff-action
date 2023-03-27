@@ -7,6 +7,7 @@
       "preset": "angular",
       "releaseRules": [
         {"type": "build", "release": "patch"},
+        {"type": "build", "scope": "deps-dev", "release": false},
         {"type": "chore", "release": "patch"},
         {"type": "chore", "scope": "release", "release": false},
         {"type": "ci", "release": false},
