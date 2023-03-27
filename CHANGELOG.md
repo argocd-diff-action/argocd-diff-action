@@ -1,3 +1,10 @@
+## [0.1.6](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.5...0.1.6) (2023-03-27)
+
+
+### Build & Dependencies
+
+* **deps-dev:** bump prettier from 2.8.6 to 2.8.7 ([#31](https://github.com/argocd-diff-action/argocd-diff-action/issues/31)) ([2012e00](https://github.com/argocd-diff-action/argocd-diff-action/commit/2012e008be22bf1cd8fb5ed4d5736a75d4dcb1a0))
+
 ## [0.1.5](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.4...0.1.5) (2023-03-24)
 
 
