@@ -1,3 +1,10 @@
+## [0.1.7](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.6...0.1.7) (2023-03-27)
+
+
+### Build & Dependencies
+
+* **deps-dev:** bump sinon from 15.0.2 to 15.0.3 ([#33](https://github.com/argocd-diff-action/argocd-diff-action/issues/33)) ([94163ad](https://github.com/argocd-diff-action/argocd-diff-action/commit/94163ade07296390a065fe6b2372bf3cccadbb97))
+
 ## [0.1.6](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.5...0.1.6) (2023-03-27)
 
 
