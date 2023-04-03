@@ -1,3 +1,10 @@
+## [0.1.11](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.10...0.1.11) (2023-04-03)
+
+
+### Build & Dependencies
+
+* **deps-dev:** bump semantic-release from 21.0.0 to 21.0.1 ([#37](https://github.com/argocd-diff-action/argocd-diff-action/issues/37)) ([f3c0265](https://github.com/argocd-diff-action/argocd-diff-action/commit/f3c02651ef5effecd2974e4c11aad091f8eb4937))
+
 ## [0.1.10](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.9...0.1.10) (2023-03-31)
 
 
