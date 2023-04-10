@@ -1,3 +1,10 @@
+## [0.1.12](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.11...0.1.12) (2023-04-10)
+
+
+### Build & Dependencies
+
+* **deps-dev:** bump eslint from 8.37.0 to 8.38.0 ([#38](https://github.com/argocd-diff-action/argocd-diff-action/issues/38)) ([5f1c828](https://github.com/argocd-diff-action/argocd-diff-action/commit/5f1c82893512a833dc30e230635b58096e292ba7))
+
 ## [0.1.11](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.10...0.1.11) (2023-04-03)
 
 
