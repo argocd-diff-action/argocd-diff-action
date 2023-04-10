@@ -1,3 +1,10 @@
+## [0.1.13](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.12...0.1.13) (2023-04-10)
+
+
+### Build & Dependencies
+
+* **deps-dev:** bump typescript from 5.0.3 to 5.0.4 ([#39](https://github.com/argocd-diff-action/argocd-diff-action/issues/39)) ([08ebed6](https://github.com/argocd-diff-action/argocd-diff-action/commit/08ebed659f154962a853ed9ac025fa3a12ade65f))
+
 ## [0.1.12](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.11...0.1.12) (2023-04-10)
 
 
