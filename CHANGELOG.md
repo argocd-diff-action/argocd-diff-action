@@ -1,3 +1,38 @@
+## [0.1.13](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.12...0.1.13) (2023-04-10)
+
+
+### Build & Dependencies
+
+* **deps-dev:** bump typescript from 5.0.3 to 5.0.4 ([#39](https://github.com/argocd-diff-action/argocd-diff-action/issues/39)) ([08ebed6](https://github.com/argocd-diff-action/argocd-diff-action/commit/08ebed659f154962a853ed9ac025fa3a12ade65f))
+
+## [0.1.12](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.11...0.1.12) (2023-04-10)
+
+
+### Build & Dependencies
+
+* **deps-dev:** bump eslint from 8.37.0 to 8.38.0 ([#38](https://github.com/argocd-diff-action/argocd-diff-action/issues/38)) ([5f1c828](https://github.com/argocd-diff-action/argocd-diff-action/commit/5f1c82893512a833dc30e230635b58096e292ba7))
+
+## [0.1.11](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.10...0.1.11) (2023-04-03)
+
+
+### Build & Dependencies
+
+* **deps-dev:** bump semantic-release from 21.0.0 to 21.0.1 ([#37](https://github.com/argocd-diff-action/argocd-diff-action/issues/37)) ([f3c0265](https://github.com/argocd-diff-action/argocd-diff-action/commit/f3c02651ef5effecd2974e4c11aad091f8eb4937))
+
+## [0.1.10](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.9...0.1.10) (2023-03-31)
+
+
+### Build & Dependencies
+
+* **deps-dev:** bump typescript from 5.0.2 to 5.0.3 ([#36](https://github.com/argocd-diff-action/argocd-diff-action/issues/36)) ([faa3a0e](https://github.com/argocd-diff-action/argocd-diff-action/commit/faa3a0e14653f1ae22f27f26dbaed49a33d78450))
+
+## [0.1.9](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.8...0.1.9) (2023-03-29)
+
+
+### Build & Dependencies
+
+* **deps-dev:** bump eslint from 8.36.0 to 8.37.0 ([#35](https://github.com/argocd-diff-action/argocd-diff-action/issues/35)) ([b730b72](https://github.com/argocd-diff-action/argocd-diff-action/commit/b730b72190b73ba09210e5cead848c1c1f504719))
+
 ## [0.1.8](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.7...0.1.8) (2023-03-27)
 
 
