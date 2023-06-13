@@ -4,7 +4,7 @@ export class AppCollection {
   apps: App[];
 
   constructor(apps: App[]) {
-    this.apps = apps;
+    this.apps = apps; // AppCollection created with null apps value?
   }
 
   filterByExcludedPath(excludedPaths: string[]): AppCollection {
@@ -22,6 +22,7 @@ export class AppCollection {
   filterByRepo(repoMatch: string): AppCollection {
     return new AppCollection(
       this.apps.filter(app => {
+        // Then trys to filter on the null apps?
         console.log(app);
         return app.spec.source.repoURL.includes(repoMatch);
       })
