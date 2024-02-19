@@ -1,12 +1,12 @@
 export interface App {
   metadata: { name: string };
   spec: {
-    source: {
+    source?: {
       repoURL: string;
-      path: string;
+      path?: string;
       targetRevision: string;
-      kustomize: Object;
-      helm: Object;
+      kustomize?: Object;
+      helm?: Object;
     };
   };
   status: {

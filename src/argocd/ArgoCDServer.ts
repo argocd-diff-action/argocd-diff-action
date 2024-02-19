@@ -40,7 +40,11 @@ export class ArgoCDServer {
   }
 
   async getAppLocalDiff(app: App): Promise<Diff> {
-    return this.getAppDiff(app, [`--local=${app.spec.source.path}`]);
+    if (app.spec.source !== undefined && app.spec.source.path !== undefined) {
+      return this.getAppDiff(app, [`--local=${app.spec.source.path}`]);
+    }
+    core.error(`cannot get app diff for ${app.metadata.name}, no source/path`);
+    return { app, diff: '' } as Diff;
   }
 
   async getAppRevisionDiff(app: App, targetRevision: string): Promise<Diff> {
@@ -91,17 +95,7 @@ export class ArgoCDServer {
   }
 
   async getAppCollection(): Promise<AppCollection> {
-    const fields = [
-      'items.metadata.name',
-      'items.spec.source.path',
-      'items.spec.source.repoURL',
-      'items.spec.source.targetRevision',
-      'items.spec.source.helm',
-      'items.spec.source.kustomize',
-      'items.status.sync.status'
-    ];
-
-    let responseJson = await this.api('v1/applications', [`fields=${fields.join(',')}`]);
+    let responseJson = await this.api('v1/applications');
     return new AppCollection(responseJson.items);
   }
 
@@ -114,7 +108,9 @@ export class ArgoCDServer {
   async getAppCollectionLocalDiffs(appCollection: AppCollection): Promise<Diff[]> {
     let appCollectionDiffPromises: Promise<Diff>[] = [];
     appCollection.apps.forEach(app => {
-      appCollectionDiffPromises.push(this.getAppLocalDiff(app));
+      if (app.spec.source !== undefined && app.spec.source.path !== undefined) {
+        appCollectionDiffPromises.push(this.getAppLocalDiff(app));
+      }
     });
     return this.getAppCollectionDiffs(appCollectionDiffPromises);
   }
