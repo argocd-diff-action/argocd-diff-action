@@ -13456,6 +13456,7 @@ function wrappy (fn, cb) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppCollection = void 0;
 class AppCollection {
+    apps;
     constructor(apps) {
         this.apps = apps;
     }
@@ -13464,18 +13465,20 @@ class AppCollection {
             return this;
         }
         return new AppCollection(this.apps.filter(app => {
-            return !excludedPaths.includes(app.spec.source.path);
+            return (app.spec.source !== undefined &&
+                app.spec.source.path !== undefined &&
+                !excludedPaths.includes(app.spec.source.path));
         }));
     }
     filterByRepo(repoMatch) {
         return new AppCollection(this.apps.filter(app => {
             console.log(app);
-            return app.spec.source.repoURL.includes(repoMatch);
+            return app.spec.source !== undefined && app.spec.source.repoURL.includes(repoMatch);
         }));
     }
     filterByTargetRevision(targetRevisions = ['master', 'main', 'HEAD']) {
         return new AppCollection(this.apps.filter(app => {
-            return targetRevisions.includes(app.spec.source.targetRevision);
+            return (app.spec.source !== undefined && targetRevisions.includes(app.spec.source.targetRevision));
         }));
     }
     getAppByName(name) {
@@ -13517,15 +13520,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -13538,146 +13532,124 @@ const node_fetch_1 = __importDefault(__nccwpck_require__(467));
 const AppCollection_1 = __nccwpck_require__(7698);
 const lib_1 = __nccwpck_require__(9730);
 class ArgoCDServer {
+    binaryPath = 'bin/argo';
+    extraCommandArgs;
+    fqdn;
+    token;
     constructor(fqdn, token, extraCommandArgs = '') {
-        this.binaryPath = 'bin/argo';
         this.fqdn = fqdn;
         this.token = token;
         this.extraCommandArgs = extraCommandArgs;
     }
-    installArgoCDCommand(version, arch = 'linux') {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (version == '') {
-                version = yield this.getServerVersion();
-            }
-            yield (0, tool_cache_1.downloadTool)(`https://github.com/argoproj/argo-cd/releases/download/${version}/argocd-${arch}-amd64`, this.binaryPath);
-            (0, fs_1.chmodSync)(this.binaryPath, '755');
-        });
+    async installArgoCDCommand(version, arch = 'linux') {
+        if (version == '') {
+            version = await this.getServerVersion();
+        }
+        await (0, tool_cache_1.downloadTool)(`https://github.com/argoproj/argo-cd/releases/download/${version}/argocd-${arch}-amd64`, this.binaryPath);
+        (0, fs_1.chmodSync)(this.binaryPath, '755');
     }
-    command(params) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let cmd = `${this.binaryPath} ${params} --auth-token=${this.token} --server=${this.fqdn} ${this.extraCommandArgs}`;
-            core.debug(`Running: ${(0, lib_1.scrubSecrets)(cmd)}`);
-            return (0, lib_1.execCommand)(cmd);
-        });
+    async command(params) {
+        let cmd = `${this.binaryPath} ${params} --auth-token=${this.token} --server=${this.fqdn} ${this.extraCommandArgs}`;
+        core.debug(`Running: ${(0, lib_1.scrubSecrets)(cmd)}`);
+        return (0, lib_1.execCommand)(cmd);
     }
-    getAppLocalDiff(app) {
-        return __awaiter(this, void 0, void 0, function* () {
+    async getAppLocalDiff(app) {
+        if (app.spec.source !== undefined && app.spec.source.path !== undefined) {
             return this.getAppDiff(app, [`--local=${app.spec.source.path}`]);
-        });
+        }
+        core.error(`cannot get app diff for ${app.metadata.name}, no source/path`);
+        return { app, diff: '' };
     }
-    getAppRevisionDiff(app, targetRevision) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.getAppDiff(app, [`--revision=${targetRevision}`]);
-        });
+    async getAppRevisionDiff(app, targetRevision) {
+        return this.getAppDiff(app, [`--revision=${targetRevision}`]);
     }
-    getAppDiff(app, params = []) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let res;
-            try {
-                res = yield this.command(`app diff ${app.metadata.name} ${params.join(' ')} --exit-code=false`);
-                core.debug(`stdout: ${res.stdout}`);
-                core.debug(`stderr: ${res.stderr}`);
-                return { app, diff: res.stdout };
-            }
-            catch (e) {
-                res = e;
-                core.error('Unexpected error when fetching app diff:');
-                core.error(`${res.err}`);
-                return { app, diff: '', error: res };
-            }
-        });
+    async getAppDiff(app, params = []) {
+        let res;
+        try {
+            res = await this.command(`app diff ${app.metadata.name} ${params.join(' ')} --exit-code=false`);
+            core.debug(`stdout: ${res.stdout}`);
+            core.debug(`stderr: ${res.stderr}`);
+            return { app, diff: res.stdout };
+        }
+        catch (e) {
+            res = e;
+            core.error('Unexpected error when fetching app diff:');
+            core.error(`${res.err}`);
+            return { app, diff: '', error: res };
+        }
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    api(endpoint, params = [], method = 'GET') {
-        return __awaiter(this, void 0, void 0, function* () {
-            const url = `https://${this.fqdn}/api/${endpoint}?${params.join('&')}}`;
-            // node-fetch response.json() returns `unknown`.
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            let responseJson;
-            core.debug(`Making API call to: '${this.fqdn}/api/${endpoint}'`);
-            try {
-                const response = yield (0, node_fetch_1.default)(url, {
-                    method: method,
-                    headers: { Cookie: `argocd.token=${this.token}` }
-                });
-                responseJson = yield response.json();
+    async api(endpoint, params = [], method = 'GET') {
+        const url = `https://${this.fqdn}/api/${endpoint}?${params.join('&')}}`;
+        // node-fetch response.json() returns `unknown`.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let responseJson;
+        core.debug(`Making API call to: '${this.fqdn}/api/${endpoint}'`);
+        try {
+            const response = await (0, node_fetch_1.default)(url, {
+                method: method,
+                headers: { Cookie: `argocd.token=${this.token}` }
+            });
+            responseJson = await response.json();
+        }
+        catch (err) {
+            if (err instanceof Error) {
+                core.error(`Failed to fetch ${endpoint} from ${this.fqdn}.`);
+                core.error(err.message);
             }
-            catch (err) {
-                if (err instanceof Error) {
-                    core.error(`Failed to fetch ${endpoint} from ${this.fqdn}.`);
-                    core.error(err.message);
-                }
-                throw err;
-            }
-            return responseJson;
-        });
+            throw err;
+        }
+        return responseJson;
     }
-    getAppCollection() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const fields = [
-                'items.metadata.name',
-                'items.spec.source.path',
-                'items.spec.source.repoURL',
-                'items.spec.source.targetRevision',
-                'items.spec.source.helm',
-                'items.spec.source.kustomize',
-                'items.status.sync.status'
-            ];
-            let responseJson = yield this.api('v1/applications', [`fields=${fields.join(',')}`]);
-            return new AppCollection_1.AppCollection(responseJson.items);
-        });
+    async getAppCollection() {
+        let responseJson = await this.api('v1/applications');
+        return new AppCollection_1.AppCollection(responseJson.items);
     }
-    getServerVersion() {
-        return __awaiter(this, void 0, void 0, function* () {
-            let responseJson = yield this.api('version');
-            // Return the release tag without the build metadata (e.g., v2.4.0+91aefab -> v2.4.0).
-            return responseJson.Version.split('+')[0];
-        });
+    async getServerVersion() {
+        let responseJson = await this.api('version');
+        // Return the release tag without the build metadata (e.g., v2.4.0+91aefab -> v2.4.0).
+        return responseJson.Version.split('+')[0];
     }
-    getAppCollectionLocalDiffs(appCollection) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let appCollectionDiffPromises = [];
-            appCollection.apps.forEach(app => {
+    async getAppCollectionLocalDiffs(appCollection) {
+        let appCollectionDiffPromises = [];
+        appCollection.apps.forEach(app => {
+            if (app.spec.source !== undefined && app.spec.source.path !== undefined) {
                 appCollectionDiffPromises.push(this.getAppLocalDiff(app));
-            });
-            return this.getAppCollectionDiffs(appCollectionDiffPromises);
+            }
         });
+        return this.getAppCollectionDiffs(appCollectionDiffPromises);
     }
-    getAppCollectionRevisionDiffs(appCollection, appTargetRevisions) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let appCollectionDiffPromises = [];
-            appTargetRevisions.forEach(appTargetRevision => {
-                let app = appCollection.getAppByName(appTargetRevision.appName);
-                if (app) {
-                    appCollectionDiffPromises.push(this.getAppRevisionDiff(app, appTargetRevision.targetRevision));
-                }
-                else {
-                    core.warning(`Could not find Application '${appTargetRevision.appName}' in AppCollection for revision diffs.`);
-                }
-            });
-            return this.getAppCollectionDiffs(appCollectionDiffPromises);
+    async getAppCollectionRevisionDiffs(appCollection, appTargetRevisions) {
+        let appCollectionDiffPromises = [];
+        appTargetRevisions.forEach(appTargetRevision => {
+            let app = appCollection.getAppByName(appTargetRevision.appName);
+            if (app) {
+                appCollectionDiffPromises.push(this.getAppRevisionDiff(app, appTargetRevision.targetRevision));
+            }
+            else {
+                core.warning(`Could not find Application '${appTargetRevision.appName}' in AppCollection for revision diffs.`);
+            }
         });
+        return this.getAppCollectionDiffs(appCollectionDiffPromises);
     }
-    getAppCollectionDiffs(appCollectionDiffPromises) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const diffs = [];
-            let results = (yield Promise.allSettled(appCollectionDiffPromises)).filter(result => result.status === 'fulfilled');
-            results.forEach(result => {
-                let appDiff = result.value;
-                if (appDiff.error) {
-                    core.setFailed(`ArgoCD diff failed for Application '${appDiff.app.metadata.name}'`);
-                    diffs.push(appDiff); // Surface the error to the PR comment.
-                }
-                else if (appDiff.diff != '') {
-                    core.info(`Found diff for Application '${appDiff.app.metadata.name}'.`);
-                    diffs.push(appDiff);
-                }
-                else {
-                    core.debug(`No diff found for Application '${appDiff.app.metadata.name}'.`);
-                }
-            });
-            return diffs;
+    async getAppCollectionDiffs(appCollectionDiffPromises) {
+        const diffs = [];
+        let results = (await Promise.allSettled(appCollectionDiffPromises)).filter(result => result.status === 'fulfilled');
+        results.forEach(result => {
+            let appDiff = result.value;
+            if (appDiff.error) {
+                core.setFailed(`ArgoCD diff failed for Application '${appDiff.app.metadata.name}'`);
+                diffs.push(appDiff); // Surface the error to the PR comment.
+            }
+            else if (appDiff.diff != '') {
+                core.info(`Found diff for Application '${appDiff.app.metadata.name}'.`);
+                diffs.push(appDiff);
+            }
+            else {
+                core.debug(`No diff found for Application '${appDiff.app.metadata.name}'.`);
+            }
         });
+        return diffs;
     }
 }
 exports.ArgoCDServer = ArgoCDServer;
@@ -13686,39 +13658,28 @@ exports.ArgoCDServer = ArgoCDServer;
 /***/ }),
 
 /***/ 9730:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.scrubSecrets = exports.execCommand = void 0;
 // lib.ts - utility functions
 const child_process_1 = __nccwpck_require__(2081);
-function execCommand(command, options = {}) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return new Promise((done, failed) => __awaiter(this, void 0, void 0, function* () {
-            (0, child_process_1.exec)(command, options, (err, stdout, stderr) => {
-                const res = {
-                    stdout,
-                    stderr
-                };
-                if (err) {
-                    res.err = err;
-                    failed(res);
-                    return;
-                }
-                done(res);
-            });
-        }));
+async function execCommand(command, options = {}) {
+    return new Promise(async (done, failed) => {
+        (0, child_process_1.exec)(command, options, (err, stdout, stderr) => {
+            const res = {
+                stdout,
+                stderr
+            };
+            if (err) {
+                res.err = err;
+                failed(res);
+                return;
+            }
+            done(res);
+        });
     });
 }
 exports.execCommand = execCommand;
@@ -13765,15 +13726,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
@@ -13788,19 +13740,17 @@ const VERSION = core.getInput('argocd-version');
 const EXTRA_CLI_ARGS = core.getInput('argocd-extra-cli-args');
 const EXCLUDE_PATHS = core.getInput('argocd-exclude-paths').split(',');
 const octokit = github.getOctokit(githubToken);
-function postDiffComment(diffs) {
-    var _a, _b;
-    return __awaiter(this, void 0, void 0, function* () {
-        const { owner, repo } = github.context.repo;
-        const sha = (_b = (_a = github.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.head) === null || _b === void 0 ? void 0 : _b.sha;
-        const commitLink = `https://github.com/${owner}/${repo}/pull/${github.context.issue.number}/commits/${sha}`;
-        const shortCommitSha = String(sha).substring(0, 7);
-        const diffOutput = diffs.map(({ app, diff, error }) => `   
-App: [\`${app.metadata.name}\`](https://${ARGOCD_SERVER_FQDN}/applications/${app.metadata.name}) 
+async function postDiffComment(diffs) {
+    const { owner, repo } = github.context.repo;
+    const sha = github.context.payload.pull_request?.head?.sha;
+    const commitLink = `https://github.com/${owner}/${repo}/pull/${github.context.issue.number}/commits/${sha}`;
+    const shortCommitSha = String(sha).substring(0, 7);
+    const diffOutput = diffs.map(({ app, diff, error }) => `
+App: [\`${app.metadata.name}\`](https://${ARGOCD_SERVER_FQDN}/applications/${app.metadata.name})
 YAML generation: ${error ? ' Error 🛑' : 'Success 🟢'}
 App sync status: ${app.status.sync.status === 'Synced' ? 'Synced ✅' : 'Out of Sync ⚠️ '}
 ${error
-            ? `
+        ? `
 **\`stderr:\`**
 \`\`\`
 ${error.stderr}
@@ -13811,10 +13761,10 @@ ${error.stderr}
 ${JSON.stringify(error.err)}
 \`\`\`
 `
-            : ''}
+        : ''}
 
 ${diff
-            ? `
+        ? `
 <details>
 
 \`\`\`diff
@@ -13823,11 +13773,15 @@ ${diff}
 
 </details>
 `
-            : ''}
+        : ''}
 ---
 `);
-        const output = (0, lib_1.scrubSecrets)(`
-## ArgoCD Diff for commit [\`${shortCommitSha}\`](${commitLink})
+    // Use a unique value at the beginning of each comment so we can find the correct comment for the argocd server FQDN
+    const headerPrefix = `<!-- argocd-diff-action ${ARGOCD_SERVER_FQDN} -->`;
+    const header = `${headerPrefix}
+## ArgoCD Diff ${ARGOCD_SERVER_FQDN} for commit [\`${shortCommitSha}\`](${commitLink})
+`;
+    const output = (0, lib_1.scrubSecrets)(`${header}
 _Updated at ${new Date().toLocaleString('en-CA', { timeZone: 'America/Toronto' })} PT_
   ${diffOutput.join('\n')}
 
@@ -13837,53 +13791,50 @@ _Updated at ${new Date().toLocaleString('en-CA', { timeZone: 'America/Toronto' }
 | ⚠️      | The app is out-of-sync in ArgoCD, and the diffs you see include those changes plus any from this PR. |
 | 🛑     | There was an error generating the ArgoCD diffs due to changes in this PR. |
 `);
-        const commentsResponse = yield octokit.rest.issues.listComments({
+    const commentsResponse = await octokit.rest.issues.listComments({
+        issue_number: github.context.issue.number,
+        owner,
+        repo
+    });
+    const existingComment = commentsResponse.data.find(d => d.body?.includes(headerPrefix) ?? false);
+    // Existing comments should be updated even if there are no changes this round in order to indicate that
+    if (existingComment) {
+        octokit.rest.issues.updateComment({
+            owner,
+            repo,
+            comment_id: existingComment.id,
+            body: output
+        });
+        // Only post a new comment when there are changes
+    }
+    else if (diffs.length) {
+        octokit.rest.issues.createComment({
             issue_number: github.context.issue.number,
             owner,
-            repo
+            repo,
+            body: output
         });
-        const existingComment = commentsResponse.data.find(d => { var _a, _b; return (_b = (_a = d.body) === null || _a === void 0 ? void 0 : _a.includes('ArgoCD Diff for')) !== null && _b !== void 0 ? _b : false; });
-        // Existing comments should be updated even if there are no changes this round in order to indicate that
-        if (existingComment) {
-            octokit.rest.issues.updateComment({
-                owner,
-                repo,
-                comment_id: existingComment.id,
-                body: output
-            });
-            // Only post a new comment when there are changes
-        }
-        else if (diffs.length) {
-            octokit.rest.issues.createComment({
-                issue_number: github.context.issue.number,
-                owner,
-                repo,
-                body: output
-            });
-        }
-    });
+    }
 }
-function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const argocdServer = new ArgoCDServer_1.ArgoCDServer(ARGOCD_SERVER_FQDN, ARGOCD_TOKEN, EXTRA_CLI_ARGS);
-        yield argocdServer.installArgoCDCommand(VERSION, ARCH);
-        let appAllCollection = yield argocdServer.getAppCollection();
-        // We can only run `diff --local` on files that are for this current repo.
-        // Filter Apps to those following the repo trunk, since that is what the PR is
-        // comparing against (in most cases).
-        let appLocalCollection = appAllCollection
-            .filterByRepo(`${github.context.repo.owner}/${github.context.repo.repo}`)
-            .filterByTargetRevision()
-            .filterByExcludedPath(EXCLUDE_PATHS);
-        core.info(`Found apps: ${appLocalCollection.apps.map(a => a.metadata.name).join(', ')}`);
-        let appDiffs = yield argocdServer.getAppCollectionLocalDiffs(appLocalCollection);
-        // Get diffs for apps of apps with targetRevision changes from local app diffs.
-        // Note that this won't include any other changes to the App of App (e.g., Helm
-        // value changes).
-        let appOfAppTargetRevisions = getAppOfAppTargetRevisions(appDiffs);
-        let appofAppDiffs = yield argocdServer.getAppCollectionRevisionDiffs(appAllCollection, appOfAppTargetRevisions);
-        yield postDiffComment([...appDiffs, ...appofAppDiffs]);
-    });
+async function run() {
+    const argocdServer = new ArgoCDServer_1.ArgoCDServer(ARGOCD_SERVER_FQDN, ARGOCD_TOKEN, EXTRA_CLI_ARGS);
+    await argocdServer.installArgoCDCommand(VERSION, ARCH);
+    let appAllCollection = await argocdServer.getAppCollection();
+    // We can only run `diff --local` on files that are for this current repo.
+    // Filter Apps to those following the repo trunk, since that is what the PR is
+    // comparing against (in most cases).
+    let appLocalCollection = appAllCollection
+        .filterByRepo(`${github.context.repo.owner}/${github.context.repo.repo}`)
+        .filterByTargetRevision()
+        .filterByExcludedPath(EXCLUDE_PATHS);
+    core.info(`Found apps: ${appLocalCollection.apps.map(a => a.metadata.name).join(', ')}`);
+    let appDiffs = await argocdServer.getAppCollectionLocalDiffs(appLocalCollection);
+    // Get diffs for apps of apps with targetRevision changes from local app diffs.
+    // Note that this won't include any other changes to the App of App (e.g., Helm
+    // value changes).
+    let appOfAppTargetRevisions = getAppOfAppTargetRevisions(appDiffs);
+    let appofAppDiffs = await argocdServer.getAppCollectionRevisionDiffs(appAllCollection, appOfAppTargetRevisions);
+    await postDiffComment([...appDiffs, ...appofAppDiffs]);
 }
 run().catch(e => {
     console.error(e);
@@ -13896,7 +13847,7 @@ function getAppOfAppTargetRevisions(diffs) {
         if (appDiff.diff.includes('argoproj.io/Application')) {
             core.debug(`Found Application in the diff for Application '${appDiff.app.metadata.name}'.`);
             let changedResourceDiffs = appDiff.diff.split('===== ([\\w\\S]+/[\\w\\S]+ ){2}======');
-            changedResourceDiffs.forEach((diff) => __awaiter(this, void 0, void 0, function* () {
+            changedResourceDiffs.forEach(async (diff) => {
                 let match = diff.match('===== (?:argoproj.io\\/Application) (\\w+/\\S+) ======\\n(?:.*\\n)*>\\s+targetRevision: (.*)');
                 if (match) {
                     const appName = match[1].split('/')[1];
@@ -13904,7 +13855,7 @@ function getAppOfAppTargetRevisions(diffs) {
                     core.info(`Found targetRevision change on Application '${appName}' of Application '${appDiff.app.metadata.name}'.`);
                     appTargetRevisions.push({ appName: appName, targetRevision: targetRevision });
                 }
-            }));
+            });
         }
         else {
             core.debug(`No targetRevision change found in Applications of Application '${appDiff.app.metadata.name}'.`);
