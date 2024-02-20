@@ -13745,8 +13745,8 @@ async function postDiffComment(diffs) {
     const sha = github.context.payload.pull_request?.head?.sha;
     const commitLink = `https://github.com/${owner}/${repo}/pull/${github.context.issue.number}/commits/${sha}`;
     const shortCommitSha = String(sha).substring(0, 7);
-    const diffOutput = diffs.map(({ app, diff, error }) => `   
-App: [\`${app.metadata.name}\`](https://${ARGOCD_SERVER_FQDN}/applications/${app.metadata.name}) 
+    const diffOutput = diffs.map(({ app, diff, error }) => `
+App: [\`${app.metadata.name}\`](https://${ARGOCD_SERVER_FQDN}/applications/${app.metadata.name})
 YAML generation: ${error ? ' Error 🛑' : 'Success 🟢'}
 App sync status: ${app.status.sync.status === 'Synced' ? 'Synced ✅' : 'Out of Sync ⚠️ '}
 ${error
@@ -13776,8 +13776,12 @@ ${diff}
         : ''}
 ---
 `);
-    const output = (0, lib_1.scrubSecrets)(`
-## ArgoCD Diff for commit [\`${shortCommitSha}\`](${commitLink})
+    // Use a unique value at the beginning of each comment so we can find the correct comment for the argocd server FQDN
+    const headerPrefix = `<!-- argocd-diff-action ${ARGOCD_SERVER_FQDN} -->`;
+    const header = `${headerPrefix}
+## ArgoCD Diff ${ARGOCD_SERVER_FQDN} for commit [\`${shortCommitSha}\`](${commitLink})
+`;
+    const output = (0, lib_1.scrubSecrets)(`${header}
 _Updated at ${new Date().toLocaleString('en-CA', { timeZone: 'America/Toronto' })} PT_
   ${diffOutput.join('\n')}
 
@@ -13792,7 +13796,7 @@ _Updated at ${new Date().toLocaleString('en-CA', { timeZone: 'America/Toronto' }
         owner,
         repo
     });
-    const existingComment = commentsResponse.data.find(d => d.body?.includes('ArgoCD Diff for') ?? false);
+    const existingComment = commentsResponse.data.find(d => d.body?.includes(headerPrefix) ?? false);
     // Existing comments should be updated even if there are no changes this round in order to indicate that
     if (existingComment) {
         octokit.rest.issues.updateComment({
