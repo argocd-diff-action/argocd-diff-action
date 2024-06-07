@@ -17,7 +17,7 @@ inputs:
     required: true
   argocd-extra-cli-args: 
     description: Extra arguments to pass to the argocd CLI
-    default: --grpc-web
+    default: ''
     required: false
   argocd-exclude-paths: 
     description: ArgoCD app apths to exclude in comma separated list
