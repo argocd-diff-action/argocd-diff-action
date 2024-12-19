@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - 'main'
-      - '13-release-workflow'
 
 jobs:
   release:
@@ -15,7 +14,7 @@ jobs:
       !contains(github.event.head_commit.message, '[skip release]')
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           # Add token with repo permissions and persist credentials so that it
@@ -23,9 +22,9 @@ jobs:
           token: ${{ secrets.GH_MOREY_TECH_BOT_TOKEN }}
           persist-credentials: true
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: 'lts/*'
 
       - name: Install NPM Dev Dependencies
         # Also, installs semantic-release and plugins for the release step.
@@ -44,9 +43,7 @@ jobs:
 
       - name: Run semantic-release
         id: semantic-release
-        uses: cycjimmy/semantic-release-action@v3
-        with:
-          semantic_version: ^19.0.5
+        uses: cycjimmy/semantic-release-action@v4
         env:
           GITHUB_TOKEN: ${{ secrets.GH_MOREY_TECH_BOT_TOKEN }}
 
