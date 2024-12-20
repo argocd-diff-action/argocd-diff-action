@@ -5,6 +5,9 @@ on:
     branches:
       - 'main'
 
+permissions:
+  contents: write
+
 jobs:
   release:
     name: release
@@ -19,7 +22,6 @@ jobs:
           fetch-depth: 0
           # Add token with repo permissions and persist credentials so that it
           # can push the major version tag.
-          token: ${{ secrets.GH_MOREY_TECH_BOT_TOKEN }}
           persist-credentials: true
 
       - uses: actions/setup-node@v4
@@ -44,8 +46,6 @@ jobs:
       - name: Run semantic-release
         id: semantic-release
         uses: cycjimmy/semantic-release-action@v4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_MOREY_TECH_BOT_TOKEN }}
 
       - name: Push Floating Major Version Tag
         if: steps.semantic-release.outputs.new_release_major_version != ''
@@ -53,8 +53,8 @@ jobs:
           VERSION="${{ steps.semantic-release.outputs.new_release_version }}"
           MAJOR_VERSION="v${{ steps.semantic-release.outputs.new_release_major_version }}"
 
-          git config --global user.email "morey-tech-bot@users.noreply.github.com"
-          git config --global user.name "morey-tech-bot"
+          git config --global user.email "25726+Voziv@users.noreply.github.com"
+          git config --global user.name "Release Action"
 
           echo "Creating/Updating major version tag..."
           git tag -fa ${MAJOR_VERSION} -m "Floating major version tag. The latest release for it is: ${VERSION}" "${VERSION}"
