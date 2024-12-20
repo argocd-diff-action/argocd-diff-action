@@ -13,28 +13,6 @@ jobs:
           app-id: ${{ vars.RELEASE_BOT_APP_ID }}
           private-key: ${{ secrets.RELEASE_BOT_APP_PRIVATE_KEY }}
 
-      # Due to a bug with the `pr-size-labeler` action, it will create duplicate
-      # comments about a PR being too large. This adds a lot of noise to active PRs.
-      # To overcome this until the issue is closed, add these two steps to get the
-      # last comment about the PR size and if it exists, delete it.
-      # See: https://github.com/CodelyTV/pr-size-labeler/issues/19
-      - name: Find previous PR size comment.
-        uses: peter-evans/find-comment@v3
-        id: find-comment
-        with:
-          issue-number: ${{ github.event.number }}
-          body-includes: "This PR exceeds the recommended max size of"
-          comment-author: argocd-diff-action[bot]
-          direction: last
-
-      # Note: detomarco/delete-comment@v1 doesn't work because there's no tag called v1
-      #       and v1.1.0 was mis-tagged as 1.1.0 (missing the v)
-      - name: Delete previous PR size comment.
-        uses: detomarco/delete-comment@1.1.0
-        with:
-          token: ${{ steps.app-token.outputs.token }}
-          comment-id: ${{ steps.find-comment.outputs.comment-id }}
-
       - uses: codelytv/pr-size-labeler@v1
         with:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
