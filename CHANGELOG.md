@@ -1,3 +1,13 @@
+## [0.3.1](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.3.0...0.3.1) (2024-12-20)
+
+### Continous Integration
+
+* **lint-pr:** run on pull_request ([19472ec](https://github.com/argocd-diff-action/argocd-diff-action/commit/19472ec662a00b4acb5c5d6d84141b7b96e59cfc))
+
+### Refactors
+
+* remove node-fetch package ([1cb77b5](https://github.com/argocd-diff-action/argocd-diff-action/commit/1cb77b50742c2f8e58cd87543977d7c49ab18e74))
+
 ## [0.3.0](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.2.0...0.3.0) (2024-12-20)
 
 ### Continous Integration
