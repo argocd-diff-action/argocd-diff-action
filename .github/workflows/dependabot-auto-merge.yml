@@ -5,13 +5,24 @@ on:
     paths:
       - package-lock.json
 
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
 jobs:
   dependabot-auto-merge:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_APP_PRIVATE_KEY }}
+
       - uses: ahmadnassri/action-dependabot-auto-merge@v2
         with:
           command: "squash and merge"
           target: minor
-          github-token: ${{ secrets.GH_MOREY_TECH_BOT_TOKEN }}
+          github-token: ${{ steps.app-token.outputs.token }}
