@@ -43,7 +43,7 @@ jobs:
 | `argocd-version` | false |  | `argocd` command version to install. Defaults to the server version. |
 | `github-token` | true |  | Github Token |
 | `argocd-extra-cli-args` | false | --grpc-web | Extra arguments to pass to the argocd CLI |
-| `argocd-exclude-paths` | false |  | ArgoCD app apths to exclude in comma separated list |
+| `argocd-exclude-paths` | false |  | ArgoCD app paths to exclude in comma separated list |
 
 <!--(inputs-end)-->
 

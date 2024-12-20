@@ -1,3 +1,13 @@
+## [0.2.0](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.14...0.2.0) (2024-12-20)
+
+### Continous Integration
+
+* update all ci actions ([#78](https://github.com/argocd-diff-action/argocd-diff-action/issues/78)) ([f586784](https://github.com/argocd-diff-action/argocd-diff-action/commit/f586784297f0d10d3d34d5181b1baa3354ec1ce4))
+
+### Features
+
+* use node 20 ([#79](https://github.com/argocd-diff-action/argocd-diff-action/issues/79)) ([75e29bc](https://github.com/argocd-diff-action/argocd-diff-action/commit/75e29bc50f5d5ae8a94c488a6e2ad6bb565eeb62)), closes [#74](https://github.com/argocd-diff-action/argocd-diff-action/issues/74)
+
 ## [0.1.14](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.13...0.1.14) (2024-12-20)
 
 ### Build & Dependencies
