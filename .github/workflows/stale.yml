@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30  # Don't wait 6 hours to cancel workflow if it hangs.
     steps:
-      - uses: actions/stale@v5
+      - uses: actions/stale@v9
         with:
           stale-pr-label: 'stale'
           stale-pr-message: |

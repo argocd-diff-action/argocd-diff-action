@@ -7,9 +7,15 @@ jobs:
     runs-on: ubuntu-latest
     name: Label the PR size
     steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_APP_PRIVATE_KEY }}
+
       - uses: codelytv/pr-size-labeler@v1
         with:
-          GITHUB_TOKEN: ${{ secrets.GH_MOREY_TECH_BOT_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           xs_label: 'size/xs'
           xs_max_size: '10'
           s_label: 'size/s'
