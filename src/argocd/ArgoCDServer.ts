@@ -150,7 +150,7 @@ export class ArgoCDServer {
 
     let results = (await Promise.allSettled(appCollectionDiffPromises)).filter(
       result => result.status === 'fulfilled'
-    ) as PromiseFulfilledResult<Diff>[];
+    );
 
     results.forEach(result => {
       let appDiff = result.value;

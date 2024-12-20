@@ -1,32 +1,29 @@
 name: Lint PR
 
 on:
-  pull_request:
-    types: ['opened', 'edited', 'reopened', 'synchronize']
+  # See security note here: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request_target
+  # TL;DR; Don't check out, build, or run code in this action
+  pull_request_target:
+    types:
+      - edited
+      - opened
+      - reopened
+      - synchronize
 
 # PR updates can happen in quick succession leading to this
 # workflow being trigger a number of times. This limits it
 # to one run per PR.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: read
 
 jobs:
   name-and-commits:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - run: npm install @commitlint/config-conventional
-
-      - name: Lint Commit Messages  # to cover rebase-merges
-        uses: wagoid/commitlint-github-action@v6
-
-      # Fix for error message
-      # See https://github.com/JulienKode/pull-request-name-linter-action/issues/237#issuecomment-2325046390
-      - name: Install Dependencies
-        run: npm install @commitlint/config-conventional@16.0.0
-
-      - name: Lint Pull Request Title  # to cover squash-merges
-        uses: JulienKode/pull-request-name-linter-action@v0.5.0
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
