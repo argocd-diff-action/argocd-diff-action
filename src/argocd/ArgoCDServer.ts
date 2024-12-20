@@ -75,7 +75,7 @@ export class ArgoCDServer {
     const url = `https://${this.fqdn}/api/${endpoint}?${params.join('&')}}`;
     core.debug(`Making API call to: '${url}'`);
 
-    // node-fetch response.json() returns `unknown`.
+    // response.json() returns `any`.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let responseJson: any;
 
