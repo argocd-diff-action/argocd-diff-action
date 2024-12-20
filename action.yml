@@ -20,9 +20,9 @@ inputs:
     default: --grpc-web
     required: false
   argocd-exclude-paths: 
-    description: ArgoCD app apths to exclude in comma separated list
+    description: ArgoCD app paths to exclude in comma separated list
     default: ''
     required: false
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
