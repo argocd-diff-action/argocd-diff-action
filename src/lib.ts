@@ -1,5 +1,5 @@
 // lib.ts - utility functions
-import { exec, ExecException, ExecOptions } from 'child_process';
+import { exec, type ExecException, type ExecOptions } from 'child_process';
 
 export interface ExecResult {
   err?: Error;
@@ -30,7 +30,7 @@ export function scrubSecrets(input: string): string {
   // from the PR comment body.
   const authTokenMatches = input.match(/--auth-token=((\w+\S)+)/);
   if (authTokenMatches) {
-    output = output.replace(new RegExp(authTokenMatches[1], 'g'), '***');
+    output = output.replace(new RegExp(authTokenMatches[1] ?? 'undefined', 'g'), '***');
   }
   return output;
 }

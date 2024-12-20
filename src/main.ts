@@ -2,10 +2,10 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 
 // local imports
-import { AppTargetRevision } from './argocd/AppTargetRevision';
-import { ArgoCDServer } from './argocd/ArgoCDServer';
-import { Diff } from './Diff';
-import { scrubSecrets } from './lib';
+import { type AppTargetRevision } from './argocd/AppTargetRevision.js';
+import { ArgoCDServer } from './argocd/ArgoCDServer.js';
+import { type Diff } from './Diff.js';
+import { scrubSecrets } from './lib.js';
 
 const ARCH = process.env.ARCH || 'linux';
 const githubToken = core.getInput('github-token');
@@ -26,8 +26,8 @@ async function postDiffComment(diffs: Diff[]): Promise<void> {
   const shortCommitSha = String(sha).substring(0, 7);
 
   const diffOutput = diffs.map(
-    ({ app, diff, error }) => `   
-App: [\`${app.metadata.name}\`](https://${ARGOCD_SERVER_FQDN}/applications/${app.metadata.name}) 
+    ({ app, diff, error }) => `
+App: [\`${app.metadata.name}\`](https://${ARGOCD_SERVER_FQDN}/applications/${app.metadata.name})
 YAML generation: ${error ? ' Error 🛑' : 'Success 🟢'}
 App sync status: ${app.status.sync.status === 'Synced' ? 'Synced ✅' : 'Out of Sync ⚠️ '}
 ${
@@ -63,8 +63,13 @@ ${diff}
 `
   );
 
-  const output = scrubSecrets(`
-## ArgoCD Diff for commit [\`${shortCommitSha}\`](${commitLink})
+  // Use a unique value at the beginning of each comment so we can find the correct comment for the argocd server FQDN
+  const headerPrefix = `<!-- argocd-diff-action ${ARGOCD_SERVER_FQDN} -->`;
+  const header = `${headerPrefix}
+## ArgoCD Diff ${ARGOCD_SERVER_FQDN} for commit [\`${shortCommitSha}\`](${commitLink})
+`;
+
+  const output = scrubSecrets(`${header}
 _Updated at ${new Date().toLocaleString('en-CA', { timeZone: 'America/Toronto' })} PT_
   ${diffOutput.join('\n')}
 
@@ -82,7 +87,7 @@ _Updated at ${new Date().toLocaleString('en-CA', { timeZone: 'America/Toronto' }
   });
 
   const existingComment = commentsResponse.data.find(
-    d => d.body?.includes('ArgoCD Diff for') ?? false
+    d => d.body?.includes(headerPrefix) ?? false
   );
 
   // Existing comments should be updated even if there are no changes this round in order to indicate that
@@ -158,8 +163,8 @@ function getAppOfAppTargetRevisions(diffs: Diff[]): AppTargetRevision[] {
           '===== (?:argoproj.io\\/Application) (\\w+/\\S+) ======\\n(?:.*\\n)*>\\s+targetRevision: (.*)'
         );
         if (match) {
-          const appName = match[1].split('/')[1];
-          const targetRevision = match[2];
+          const appName = match[1]?.split('/')[1] ?? 'undefined';
+          const targetRevision = match[2] ?? 'undefined';
           core.info(
             `Found targetRevision change on Application '${appName}' of Application '${appDiff.app.metadata.name}'.`
           );

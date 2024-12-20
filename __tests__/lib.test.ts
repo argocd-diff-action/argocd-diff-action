@@ -1,6 +1,6 @@
 import { expect, test } from '@jest/globals';
 
-import { execCommand, ExecResult, scrubSecrets } from '../src/lib';
+import { execCommand, type ExecResult, scrubSecrets } from '../src/lib.js';
 
 test('scrubSecrets replaces auth-token with ***', () => {
   let fakeAuthToken =

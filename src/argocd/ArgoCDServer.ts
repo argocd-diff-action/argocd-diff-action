@@ -1,13 +1,13 @@
 import { chmodSync } from 'fs';
 import * as core from '@actions/core';
 import { downloadTool } from '@actions/tool-cache';
-import fetch from 'node-fetch';
 
-import { App } from './App';
-import { AppCollection } from './AppCollection';
-import { AppTargetRevision } from './AppTargetRevision';
-import { Diff } from '../Diff';
-import { ExecResult, execCommand, scrubSecrets } from '../lib';
+import { type App } from './App.js';
+import { AppCollection } from './AppCollection.js';
+import { type AppTargetRevision } from './AppTargetRevision.js';
+import { type Diff } from '../Diff.js';
+import { type ExecResult, execCommand, scrubSecrets } from '../lib.js';
+
 
 export class ArgoCDServer {
   binaryPath = 'bin/argo';
@@ -40,11 +40,17 @@ export class ArgoCDServer {
   }
 
   async getAppLocalDiff(app: App): Promise<Diff> {
-    return this.getAppDiff(app, [`--local=${app.spec.source.path}`]);
+    if (app.spec.source?.path === undefined) {
+      core.error(`Cannot diff ${app.metadata.name}, no source.path`);
+
+      return { app, diff: '' } as Diff;
+    }
+
+    return this.getAppDiff(app, [ `--local=${app.spec.source.path}` ]);
   }
 
   async getAppRevisionDiff(app: App, targetRevision: string): Promise<Diff> {
-    return this.getAppDiff(app, [`--revision=${targetRevision}`]);
+    return this.getAppDiff(app, [ `--revision=${targetRevision}` ]);
   }
 
   async getAppDiff(app: App, params: string[] = []): Promise<Diff> {
@@ -97,17 +103,7 @@ export class ArgoCDServer {
   }
 
   async getAppCollection(): Promise<AppCollection> {
-    const fields = [
-      'items.metadata.name',
-      'items.spec.source.path',
-      'items.spec.source.repoURL',
-      'items.spec.source.targetRevision',
-      'items.spec.source.helm',
-      'items.spec.source.kustomize',
-      'items.status.sync.status'
-    ];
-
-    let responseJson = await this.api('v1/applications', [`fields=${fields.join(',')}`]);
+    let responseJson = await this.api('v1/applications');
     return new AppCollection(responseJson.items);
   }
 
@@ -120,7 +116,9 @@ export class ArgoCDServer {
   async getAppCollectionLocalDiffs(appCollection: AppCollection): Promise<Diff[]> {
     let appCollectionDiffPromises: Promise<Diff>[] = [];
     appCollection.apps.forEach(app => {
-      appCollectionDiffPromises.push(this.getAppLocalDiff(app));
+      if (app.spec.source?.path !== undefined) {
+        appCollectionDiffPromises.push(this.getAppLocalDiff(app));
+      }
     });
     return this.getAppCollectionDiffs(appCollectionDiffPromises);
   }
