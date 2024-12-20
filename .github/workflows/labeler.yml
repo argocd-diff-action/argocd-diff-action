@@ -24,7 +24,7 @@ jobs:
         with:
           issue-number: ${{ github.event.number }}
           body-includes: "This PR exceeds the recommended max size of"
-          comment-author: argocd-diff-action-bot
+          comment-author: argocd-diff-action[bot]
           direction: last
 
       # Note: detomarco/delete-comment@v1 doesn't work because there's no tag called v1
