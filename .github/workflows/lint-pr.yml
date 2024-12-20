@@ -1,9 +1,7 @@
 name: Lint PR
 
 on:
-  # See security note here: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request_target
-  # TL;DR; Don't check out, build, or run code in this action
-  pull_request_target:
+  pull_request:
     types:
       - edited
       - opened
