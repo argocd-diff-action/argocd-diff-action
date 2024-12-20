@@ -2,6 +2,7 @@ name: 'Close Stale PRs'
 on:
   schedule:
     - cron: '32 11 * * 1-5'  # 11:32 UTC / 07:32 EDT / 06:32 EST from Mon-Fri.
+  workflow_dispatch:
 
 jobs:
   stale:
