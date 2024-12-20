@@ -1,3 +1,13 @@
+## [0.3.0](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.2.0...0.3.0) (2024-12-20)
+
+### Continous Integration
+
+* use a different action to lint pr titles ([1f6c16f](https://github.com/argocd-diff-action/argocd-diff-action/commit/1f6c16f8f3290cf2d988ef65e7286d59169fe3fb))
+
+### Features
+
+* make source optional and use native fetch ([#80](https://github.com/argocd-diff-action/argocd-diff-action/issues/80)) ([82e59fb](https://github.com/argocd-diff-action/argocd-diff-action/commit/82e59fb3ce11e106800f3a4a453fffb338a23ddc)), closes [#4](https://github.com/argocd-diff-action/argocd-diff-action/issues/4)
+
 ## [0.2.0](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.14...0.2.0) (2024-12-20)
 
 ### Continous Integration
