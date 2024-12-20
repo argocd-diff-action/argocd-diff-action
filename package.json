@@ -34,7 +34,7 @@
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.0",
     "@actions/tool-cache": "^2.0.1",
-    "node-fetch": "^2.7.0"
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "@fetch-mock/jest": "^0.2.7",
