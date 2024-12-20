@@ -27,8 +27,10 @@ jobs:
           comment-author: argocd-diff-action-bot
           direction: last
 
+      # Note: detomarco/delete-comment@v1 doesn't work because there's no tag called v1
+      #       and v1.1.0 was mis-tagged as 1.1.0 (missing the v)
       - name: Delete previous PR size comment.
-        uses: detomarco/delete-comment@v1.1.0
+        uses: detomarco/delete-comment@1.1.0
         with:
           token: ${{ steps.app-token.outputs.token }}
           comment-id: ${{ steps.find-comment.outputs.comment-id }}
