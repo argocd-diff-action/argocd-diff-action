@@ -4,6 +4,10 @@ on:
     - cron: '32 11 * * 1-5'  # 11:32 UTC / 07:32 EDT / 06:32 EST from Mon-Fri.
   workflow_dispatch:
 
+permissions:
+  issues: write
+  pull-requests: write
+
 jobs:
   stale:
     runs-on: ubuntu-latest
