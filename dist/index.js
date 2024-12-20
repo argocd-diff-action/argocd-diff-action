@@ -13460,6 +13460,9 @@ class AppCollection {
         this.apps = apps;
     }
     filterByExcludedPath(excludedPaths) {
+        if (this.apps == null) {
+            return this;
+        }
         if (excludedPaths.length === 0) {
             return this;
         }
@@ -13468,17 +13471,26 @@ class AppCollection {
         }));
     }
     filterByRepo(repoMatch) {
+        if (this.apps == null) {
+            return this;
+        }
         return new AppCollection(this.apps.filter(app => {
             console.log(app);
             return app.spec.source.repoURL.includes(repoMatch);
         }));
     }
     filterByTargetRevision(targetRevisions = ['master', 'main', 'HEAD']) {
+        if (this.apps == null) {
+            return this;
+        }
         return new AppCollection(this.apps.filter(app => {
             return targetRevisions.includes(app.spec.source.targetRevision);
         }));
     }
     getAppByName(name) {
+        if (this.apps == null) {
+            return;
+        }
         return this.apps.find(app => {
             return name === app.metadata.name;
         });
@@ -13591,15 +13603,16 @@ class ArgoCDServer {
     api(endpoint, params = [], method = 'GET') {
         return __awaiter(this, void 0, void 0, function* () {
             const url = `https://${this.fqdn}/api/${endpoint}?${params.join('&')}}`;
+            core.debug(`Making API call to: '${url}'`);
             // node-fetch response.json() returns `unknown`.
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             let responseJson;
-            core.debug(`Making API call to: '${this.fqdn}/api/${endpoint}'`);
             try {
                 const response = yield (0, node_fetch_1.default)(url, {
                     method: method,
                     headers: { Cookie: `argocd.token=${this.token}` }
                 });
+                core.debug(`API call response code: ${response.status}`);
                 responseJson = yield response.json();
             }
             catch (err) {
@@ -13608,6 +13621,10 @@ class ArgoCDServer {
                     core.error(err.message);
                 }
                 throw err;
+            }
+            if (responseJson.error) {
+                core.error('Error returned by API');
+                core.error(responseJson);
             }
             return responseJson;
         });
@@ -13868,6 +13885,11 @@ function run() {
         const argocdServer = new ArgoCDServer_1.ArgoCDServer(ARGOCD_SERVER_FQDN, ARGOCD_TOKEN, EXTRA_CLI_ARGS);
         yield argocdServer.installArgoCDCommand(VERSION, ARCH);
         let appAllCollection = yield argocdServer.getAppCollection();
+        if (appAllCollection.apps == null) {
+            // When the account used for the API key does not have at least read-only, it will result in no Applications being returned.
+            core.warning('No Applications were returned from Argo CD. This may be the result of insufficient privileges.');
+            return;
+        }
         // We can only run `diff --local` on files that are for this current repo.
         // Filter Apps to those following the repo trunk, since that is what the PR is
         // comparing against (in most cases).

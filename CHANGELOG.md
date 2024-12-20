@@ -1,3 +1,35 @@
+## [0.1.14](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.13...0.1.14) (2024-12-20)
+
+### Build & Dependencies
+
+* **deps-dev:** bump @semantic-release/github from 8.0.7 to 8.1.0 ([#50](https://github.com/argocd-diff-action/argocd-diff-action/issues/50)) ([4fa3e1e](https://github.com/argocd-diff-action/argocd-diff-action/commit/4fa3e1e07c21c6288a134bf22dd281b2528c7b75))
+* **deps-dev:** bump @types/sinon from 10.0.13 to 10.0.14 ([#40](https://github.com/argocd-diff-action/argocd-diff-action/issues/40)) ([8a3a2bc](https://github.com/argocd-diff-action/argocd-diff-action/commit/8a3a2bc22fa65689838b31dd0581f76984c5a2f4))
+* **deps-dev:** bump @types/sinon from 10.0.14 to 10.0.15 ([#47](https://github.com/argocd-diff-action/argocd-diff-action/issues/47)) ([f78542e](https://github.com/argocd-diff-action/argocd-diff-action/commit/f78542e1012a967bbdef394ec72348222d654256))
+* **deps-dev:** bump eslint from 8.38.0 to 8.39.0 ([#42](https://github.com/argocd-diff-action/argocd-diff-action/issues/42)) ([3f21a41](https://github.com/argocd-diff-action/argocd-diff-action/commit/3f21a412d8355ce85283b78f19b2d371cf7693d1))
+* **deps-dev:** bump eslint from 8.39.0 to 8.40.0 ([#46](https://github.com/argocd-diff-action/argocd-diff-action/issues/46)) ([f48455e](https://github.com/argocd-diff-action/argocd-diff-action/commit/f48455e0b644ce27ff84d56ed9165d34f33cf280))
+* **deps-dev:** bump eslint from 8.40.0 to 8.41.0 ([#49](https://github.com/argocd-diff-action/argocd-diff-action/issues/49)) ([1fcea79](https://github.com/argocd-diff-action/argocd-diff-action/commit/1fcea798e6b594980b9d479981609235db7e83c9))
+* **deps-dev:** bump eslint from 8.41.0 to 8.42.0 ([#55](https://github.com/argocd-diff-action/argocd-diff-action/issues/55)) ([e228ceb](https://github.com/argocd-diff-action/argocd-diff-action/commit/e228ceb84a76422bae2e428ec7bbcc60fbc7d879))
+* **deps-dev:** bump eslint-plugin-github from 4.7.0 to 4.8.0 ([#53](https://github.com/argocd-diff-action/argocd-diff-action/issues/53)) ([7195859](https://github.com/argocd-diff-action/argocd-diff-action/commit/71958591482f1e0838855872d311f46471f8f308))
+* **deps-dev:** bump prettier from 2.8.7 to 2.8.8 ([#43](https://github.com/argocd-diff-action/argocd-diff-action/issues/43)) ([77acce8](https://github.com/argocd-diff-action/argocd-diff-action/commit/77acce8c5ff35367f82f9f4c2fe9828280bcd4e8))
+* **deps-dev:** bump semantic-release from 21.0.1 to 21.0.2 ([#44](https://github.com/argocd-diff-action/argocd-diff-action/issues/44)) ([f8246f7](https://github.com/argocd-diff-action/argocd-diff-action/commit/f8246f7e5da7dbab70283b900cdfa0062a097191))
+* **deps-dev:** bump sinon from 15.0.3 to 15.0.4 ([#41](https://github.com/argocd-diff-action/argocd-diff-action/issues/41)) ([d530c96](https://github.com/argocd-diff-action/argocd-diff-action/commit/d530c9692cd06e2b1ea268a58fb739b44d295a69))
+* **deps-dev:** bump sinon from 15.0.4 to 15.1.0 ([#48](https://github.com/argocd-diff-action/argocd-diff-action/issues/48)) ([9fd961b](https://github.com/argocd-diff-action/argocd-diff-action/commit/9fd961bbbef8a59327cbe0fe9949a2819d6da457))
+* **deps-dev:** bump sinon from 15.1.0 to 15.1.2 ([#58](https://github.com/argocd-diff-action/argocd-diff-action/issues/58)) ([82e52b5](https://github.com/argocd-diff-action/argocd-diff-action/commit/82e52b5ce64980e5cf84f5e24544840f738f1708))
+* **deps-dev:** bump typescript from 5.0.4 to 5.1.3 ([#52](https://github.com/argocd-diff-action/argocd-diff-action/issues/52)) ([5030c33](https://github.com/argocd-diff-action/argocd-diff-action/commit/5030c33b1af5b17c321dc2f335f47552fcd04481))
+
+### Continous Integration
+
+* **release:** no release for deps-dev ([#34](https://github.com/argocd-diff-action/argocd-diff-action/issues/34)) ([db0acdf](https://github.com/argocd-diff-action/argocd-diff-action/commit/db0acdf3a2116abce30dc56019a6ea6f097b9839))
+* update release action versions ([#77](https://github.com/argocd-diff-action/argocd-diff-action/issues/77)) ([3e9fedc](https://github.com/argocd-diff-action/argocd-diff-action/commit/3e9fedc571ea727a83830816478b00dd8318c750))
+* upgrade semantic release packages ([3182a5d](https://github.com/argocd-diff-action/argocd-diff-action/commit/3182a5db69d909adbfdf15fd663b45075dfcd639))
+* use action permissions to push tags ([dd2ae09](https://github.com/argocd-diff-action/argocd-diff-action/commit/dd2ae09933210c8990755a00f16b2b71b225911c))
+* use github workflow token ([a89f300](https://github.com/argocd-diff-action/argocd-diff-action/commit/a89f30024326504b778fa7bc85645f5aa4a31946))
+* use new app to commit releases ([a1fafbb](https://github.com/argocd-diff-action/argocd-diff-action/commit/a1fafbb987a693de2874ffd913024fceb1256bf8))
+
+### Bug Fixes
+
+* warn and exit on no apps ([#30](https://github.com/argocd-diff-action/argocd-diff-action/issues/30)) ([3d5fee5](https://github.com/argocd-diff-action/argocd-diff-action/commit/3d5fee575618e135a6d5045e04b6774650dacb74)), closes [#29](https://github.com/argocd-diff-action/argocd-diff-action/issues/29)
+
 ## [0.1.13](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.1.12...0.1.13) (2023-04-10)
 
 
