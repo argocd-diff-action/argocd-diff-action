@@ -28,7 +28,7 @@ jobs:
           direction: last
 
       - name: Delete previous PR size comment.
-        uses: detomarco/delete-comment@v1
+        uses: detomarco/delete-comment@v1.1.0
         with:
           token: ${{ steps.app-token.outputs.token }}
           comment-id: ${{ steps.find-comment.outputs.comment-id }}
