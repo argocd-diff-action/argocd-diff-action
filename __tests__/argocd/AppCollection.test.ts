@@ -1,7 +1,7 @@
 import { expect, test } from '@jest/globals';
 
-import { App } from '../../src/argocd/App';
-import { AppCollection } from '../../src/argocd/AppCollection';
+import { type App } from '../../src/argocd/App.js';
+import { AppCollection } from '../../src/argocd/AppCollection.js';
 
 test('filterByRepo removes apps from other repos', () => {
   expect(appCollection().filterByRepo('argocd-diff-action/app-one')).toStrictEqual(

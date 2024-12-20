@@ -2,29 +2,28 @@ import { downloadTool } from '@actions/tool-cache';
 import { expect, test, jest, describe, beforeEach, afterEach } from '@jest/globals';
 import sinon from 'sinon'; // Used for fs because it doesn't work with jest.
 import fs from 'fs';
+import fetchMock from 'fetch-mock';
 
-import { App } from '../../src/argocd/App';
-import { AppCollection } from '../../src/argocd/AppCollection';
-import { ArgoCDServer } from '../../src/argocd/ArgoCDServer';
-import { execCommand, ExecResult } from '../../src/lib';
-import { Diff } from '../../src/Diff';
-import { AppTargetRevision } from '../../src/argocd/AppTargetRevision';
+import { type App } from '../../src/argocd/App.js';
+import { AppCollection } from '../../src/argocd/AppCollection.js';
+import { ArgoCDServer } from '../../src/argocd/ArgoCDServer.js';
+import { execCommand, type ExecResult } from '../../src/lib.js';
+import { type Diff } from '../../src/Diff.js';
+import { type AppTargetRevision } from '../../src/argocd/AppTargetRevision.js';
 
 // Replaces with jest.fn (auto-mock).
 jest.mock('@actions/tool-cache');
-const mockedDownloadTool = jest.mocked(downloadTool, true);
+const mockedDownloadTool = jest.mocked(downloadTool);
 
 jest.mock('../../src/lib');
-const mockedExecCommand = jest.mocked(execCommand, true);
-
-jest.mock('node-fetch', () => require('fetch-mock-jest').sandbox());
-const fetchMock = require('node-fetch');
+const mockedExecCommand = jest.mocked(execCommand);
 
 describe('ArgoCDServer tests', function () {
   let chmodSync: any = {};
 
   // rest the changes made by mockreturnvauleonce
   beforeEach(() => {
+    fetchMock.mockGlobal();
     mockedDownloadTool.mockReset();
     mockedExecCommand.mockReset();
     // Create stub for fs.chmodSync with a return value of `void`.
@@ -34,7 +33,9 @@ describe('ArgoCDServer tests', function () {
   afterEach(() => {
     // Revert stub setup on chmodSync, in case other tests need it.
     chmodSync.restore();
-    fetchMock.reset();
+    fetchMock.clearHistory();
+    fetchMock.removeRoutes();
+    fetchMock.unmockGlobal();
   });
 
   test('ArgoCDServer has an fqdn', () => {
@@ -42,6 +43,9 @@ describe('ArgoCDServer tests', function () {
   });
 
   test('ArgoCDServer installArgoCDCommand defaults to server version & calls downloadTool', async () => {
+    fetchMock.get('https://argocd.example/api/v1/applications?%257D', 200, '{}');
+    fetchMock.get('https://argocd.example/api/v1/applications', 200, '{}');
+
     // mock response from fetch used in getServerVersion.
     fetchMock.anyOnce(
       JSON.stringify({
@@ -58,7 +62,7 @@ describe('ArgoCDServer tests', function () {
     );
   });
 
-  test('ArgoCDServer getAppDiff returns an error', () => {
+  test('ArgoCDServer getAppDiff returns an error', async () => {
     mockedExecCommand.mockReturnValueOnce(Promise.reject(exceCommandAppLocalDiffError()));
     let appDiff: Diff = {
       app: appOne(),
@@ -66,13 +70,13 @@ describe('ArgoCDServer tests', function () {
       error: exceCommandAppLocalDiffError()
     };
 
-    expect(argocdServer().getAppDiff(appOne())).resolves.toStrictEqual(appDiff);
+    await expect(argocdServer().getAppDiff(appOne())).resolves.toStrictEqual(appDiff);
   });
 
   test('ArgoCDServer getAppCollection returns a correctly formatted AppCollection', async () => {
     fetchMock.anyOnce(JSON.stringify({ items: [appOne()] }));
 
-    expect(argocdServer().getAppCollection()).resolves.toStrictEqual(new AppCollection([appOne()]));
+    await expect(argocdServer().getAppCollection()).resolves.toEqual(new AppCollection([appOne()]));
   });
 
   test('ArgoCDServer getAppCollection encounters fetch error and fails', async () => {
@@ -80,7 +84,7 @@ describe('ArgoCDServer tests', function () {
       throw new Error();
     });
 
-    expect(argocdServer().getAppCollection()).rejects.toStrictEqual(Error());
+    await expect(argocdServer().getAppCollection()).rejects.toStrictEqual(Error());
   });
 
   test('An AppCollection gets diffs with --local for each app', async () => {
@@ -103,7 +107,7 @@ describe('ArgoCDServer tests', function () {
     expect(mockedExecCommand).toBeCalledTimes(appCollection().apps.length);
     expect(mockedExecCommand).toHaveBeenCalledWith(
       `bin/argo app diff ${appOne().metadata.name} --local=${
-        appOne().spec.source.path
+        appOne().spec.source?.path
       } --exit-code=false --auth-token=tokenfake --server=argocd.example `
     );
   });

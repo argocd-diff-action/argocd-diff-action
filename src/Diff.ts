@@ -1,5 +1,5 @@
-import { App } from './argocd/App';
-import { ExecResult } from './lib';
+import { type App } from './argocd/App.js';
+import { type ExecResult } from './lib.js';
 
 export interface Diff {
   app: App;
