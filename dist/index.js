@@ -34378,12 +34378,14 @@ function scrubSecrets(input) {
 class ArgoCDServer {
     binaryPath = 'bin/argo';
     extraCommandArgs;
+    uri;
     fqdn;
     token;
-    constructor(fqdn, token, extraCommandArgs = '') {
-        this.fqdn = fqdn;
-        this.token = token;
-        this.extraCommandArgs = extraCommandArgs;
+    constructor(actionInput) {
+        this.uri = actionInput.argocd.uri;
+        this.fqdn = actionInput.argocd.fqdn;
+        this.token = actionInput.argocd.token;
+        this.extraCommandArgs = actionInput.argocd.extraCliArgs;
     }
     async installArgoCDCommand(version, arch = 'linux') {
         if (version == '') {
@@ -34502,27 +34504,76 @@ class ArgoCDServer {
     }
 }
 
+;// CONCATENATED MODULE: ./src/getActionInput.ts
+
+function getActionInput() {
+    const useTls = core.getInput('argocd-server-tls') === 'true';
+    const fqdn = core.getInput('argocd-server-fqdn');
+    const protocol = useTls ? 'https' : 'http';
+    let extraCliArgs = core.getInput('argocd-extra-cli-args');
+    if (useTls) {
+        extraCliArgs += ' --plaintext';
+    }
+    return {
+        arch: process.env.ARCH || 'linux',
+        argocd: {
+            excludePaths: core.getInput('argocd-exclude-paths').split(','),
+            extraCliArgs,
+            fqdn,
+            protocol,
+            token: core.getInput('argocd-token'),
+            uri: `${protocol}://${fqdn}`,
+            cliVersion: core.getInput('argocd-version')
+        },
+        githubToken: core.getInput('github-token'),
+    };
+}
+
 ;// CONCATENATED MODULE: ./src/main.ts
 
 
 
 
-const ARCH = process.env.ARCH || 'linux';
-const githubToken = core.getInput('github-token');
-core.info(githubToken);
-const ARGOCD_SERVER_FQDN = core.getInput('argocd-server-fqdn');
-const ARGOCD_TOKEN = core.getInput('argocd-token');
-const VERSION = core.getInput('argocd-version');
-const EXTRA_CLI_ARGS = core.getInput('argocd-extra-cli-args');
-const EXCLUDE_PATHS = core.getInput('argocd-exclude-paths').split(',');
-const octokit = github.getOctokit(githubToken);
-async function postDiffComment(diffs) {
+
+run().catch(e => {
+    console.error(e);
+    core.setFailed(e);
+});
+async function run() {
+    const actionInput = getActionInput();
+    const argocdServer = new ArgoCDServer(actionInput);
+    await argocdServer.installArgoCDCommand(actionInput.argocd.cliVersion, actionInput.arch);
+    let appAllCollection = await argocdServer.getAppCollection();
+    if (appAllCollection.apps == null) {
+        // When the account used for the API key does not have at least read-only
+        // access it will result in no Applications being returned.
+        core.warning('No Applications were returned from Argo CD. This may be the result of insufficient privileges.');
+        return;
+    }
+    // We can only run `diff --local` on files that are for this current repo.
+    // Filter Apps to those following the repo trunk, since that is what the PR is
+    // comparing against (in most cases).
+    let appLocalCollection = appAllCollection
+        .filterByRepo(`${github.context.repo.owner}/${github.context.repo.repo}`)
+        .filterByTargetRevision()
+        .filterByExcludedPath(actionInput.argocd.excludePaths);
+    core.info(`Found apps: ${appLocalCollection.apps.map(a => a.metadata.name).join(', ')}`);
+    let appDiffs = await argocdServer.getAppCollectionLocalDiffs(appLocalCollection);
+    // Get diffs for apps of apps with targetRevision changes from local app diffs.
+    // Note that this won't include any other changes to the App of App (e.g., Helm
+    // value changes).
+    let appOfAppTargetRevisions = getAppOfAppTargetRevisions(appDiffs);
+    let appOfAppDiffs = await argocdServer.getAppCollectionRevisionDiffs(appAllCollection, appOfAppTargetRevisions);
+    await postDiffComment([...appDiffs, ...appOfAppDiffs], actionInput);
+}
+async function postDiffComment(diffs, actionInput) {
+    const octokit = github.getOctokit(actionInput.githubToken);
     const { owner, repo } = github.context.repo;
     const sha = github.context.payload.pull_request?.head?.sha;
     const commitLink = `https://github.com/${owner}/${repo}/pull/${github.context.issue.number}/commits/${sha}`;
     const shortCommitSha = String(sha).substring(0, 7);
     const diffOutput = diffs.map(({ app, diff, error }) => `
-App: [\`${app.metadata.name}\`](https://${ARGOCD_SERVER_FQDN}/applications/${app.metadata.name})
+App: [\`${app.metadata.name}\`](${actionInput.argocd.uri}/applications/${app.metadata.name})
 YAML generation: ${error ? ' Error 🛑' : 'Success 🟢'}
 App sync status: ${app.status.sync.status === 'Synced' ? 'Synced ✅' : 'Out of Sync ⚠️ '}
 ${error
@@ -34553,9 +34604,9 @@ ${diff}
 ---
 `);
     // Use a unique value at the beginning of each comment so we can find the correct comment for the argocd server FQDN
-    const headerPrefix = `<!-- argocd-diff-action ${ARGOCD_SERVER_FQDN} -->`;
+    const headerPrefix = `<!-- argocd-diff-action ${actionInput.argocd.fqdn} -->`;
     const header = `${headerPrefix}
-## ArgoCD Diff ${ARGOCD_SERVER_FQDN} for commit [\`${shortCommitSha}\`](${commitLink})
+## ArgoCD Diff ${actionInput.argocd.fqdn} for commit [\`${shortCommitSha}\`](${commitLink})
 `;
     const output = scrubSecrets(`${header}
 _Updated at ${new Date().toLocaleString('en-CA', { timeZone: 'America/Toronto' })} PT_
@@ -34592,35 +34643,6 @@ _Updated at ${new Date().toLocaleString('en-CA', { timeZone: 'America/Toronto' }
         });
     }
 }
-async function run() {
-    const argocdServer = new ArgoCDServer(ARGOCD_SERVER_FQDN, ARGOCD_TOKEN, EXTRA_CLI_ARGS);
-    await argocdServer.installArgoCDCommand(VERSION, ARCH);
-    let appAllCollection = await argocdServer.getAppCollection();
-    if (appAllCollection.apps == null) {
-        // When the account used for the API key does not have at least read-only, it will result in no Applications being returned.
-        core.warning('No Applications were returned from Argo CD. This may be the result of insufficient privileges.');
-        return;
-    }
-    // We can only run `diff --local` on files that are for this current repo.
-    // Filter Apps to those following the repo trunk, since that is what the PR is
-    // comparing against (in most cases).
-    let appLocalCollection = appAllCollection
-        .filterByRepo(`${github.context.repo.owner}/${github.context.repo.repo}`)
-        .filterByTargetRevision()
-        .filterByExcludedPath(EXCLUDE_PATHS);
-    core.info(`Found apps: ${appLocalCollection.apps.map(a => a.metadata.name).join(', ')}`);
-    let appDiffs = await argocdServer.getAppCollectionLocalDiffs(appLocalCollection);
-    // Get diffs for apps of apps with targetRevision changes from local app diffs.
-    // Note that this won't include any other changes to the App of App (e.g., Helm
-    // value changes).
-    let appOfAppTargetRevisions = getAppOfAppTargetRevisions(appDiffs);
-    let appofAppDiffs = await argocdServer.getAppCollectionRevisionDiffs(appAllCollection, appOfAppTargetRevisions);
-    await postDiffComment([...appDiffs, ...appofAppDiffs]);
-}
-run().catch(e => {
-    console.error(e);
-    core.setFailed(e);
-});
 function getAppOfAppTargetRevisions(diffs) {
     let appTargetRevisions = [];
     diffs.forEach(appDiff => {

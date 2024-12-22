@@ -7,18 +7,20 @@ import { AppCollection } from './AppCollection.js';
 import { type AppTargetRevision } from './AppTargetRevision.js';
 import { type Diff } from '../Diff.js';
 import { type ExecResult, execCommand, scrubSecrets } from '../lib.js';
-
+import { ActionInput } from '../getActionInput.js';
 
 export class ArgoCDServer {
   binaryPath = 'bin/argo';
   extraCommandArgs: string;
+  uri: string;
   fqdn: string;
   token: string;
 
-  constructor(fqdn: string, token: string, extraCommandArgs = '') {
-    this.fqdn = fqdn;
-    this.token = token;
-    this.extraCommandArgs = extraCommandArgs;
+  constructor(actionInput: ActionInput) {
+    this.uri = actionInput.argocd.uri;
+    this.fqdn = actionInput.argocd.fqdn;
+    this.token = actionInput.argocd.token;
+    this.extraCommandArgs = actionInput.argocd.extraCliArgs;
   }
 
   async installArgoCDCommand(version: string, arch = 'linux'): Promise<void> {
@@ -46,18 +48,18 @@ export class ArgoCDServer {
       return { app, diff: '' } as Diff;
     }
 
-    return this.getAppDiff(app, [ `--local=${app.spec.source.path}` ]);
+    return this.getAppDiff(app, [`--local=${app.spec.source.path}`]);
   }
 
   async getAppRevisionDiff(app: App, targetRevision: string): Promise<Diff> {
-    return this.getAppDiff(app, [ `--revision=${targetRevision}` ]);
+    return this.getAppDiff(app, [`--revision=${targetRevision}`]);
   }
 
   async getAppDiff(app: App, params: string[] = []): Promise<Diff> {
     let res: ExecResult;
     try {
       res = await this.command(
-        `app diff ${app.metadata.name} ${params.join(' ')} --exit-code=false`
+        `app diff --local-repo-root=${process.cwd()} ${app.metadata.name} ${params.join(' ')} --exit-code=false`
       );
       core.debug(`stdout: ${res.stdout}`);
       core.debug(`stderr: ${res.stderr}`);

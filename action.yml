@@ -5,6 +5,10 @@ inputs:
   argocd-server-fqdn: 
     description: ArgoCD server FQDN (i.e., without the protocol)
     required: true
+  argocd-server-tls:
+    description: Use TLS to communicate with ArgoCD
+    default: 'true'
+    required: false
   argocd-token: 
     description: ArgoCD token for a local or project-scoped user https://argoproj.github.io/argo-cd/operator-manual/user-management/#local-usersaccounts-v15
     required: true

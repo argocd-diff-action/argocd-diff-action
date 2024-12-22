@@ -10,6 +10,7 @@ import { ArgoCDServer } from '../../src/argocd/ArgoCDServer.js';
 import { execCommand, type ExecResult } from '../../src/lib.js';
 import { type Diff } from '../../src/Diff.js';
 import { type AppTargetRevision } from '../../src/argocd/AppTargetRevision.js';
+import { ActionInput } from '../../src/getActionInput.js';
 
 // Replaces with jest.fn (auto-mock).
 jest.mock('@actions/tool-cache');
@@ -106,9 +107,9 @@ describe('ArgoCDServer tests', function () {
     );
     expect(mockedExecCommand).toBeCalledTimes(appCollection().apps.length);
     expect(mockedExecCommand).toHaveBeenCalledWith(
-      `bin/argo app diff ${appOne().metadata.name} --local=${
+      `bin/argo app diff --local-repo-root=${process.cwd()} ${appOne().metadata.name} --local=${
         appOne().spec.source?.path
-      } --exit-code=false --auth-token=tokenfake --server=argocd.example `
+      } --exit-code=false --auth-token=fakeArgoCdToken --server=argocd.example `
     );
   });
 
@@ -125,9 +126,9 @@ describe('ArgoCDServer tests', function () {
     ).resolves.toStrictEqual(diffs);
     expect(mockedExecCommand).toBeCalledTimes(1);
     expect(mockedExecCommand).toHaveBeenCalledWith(
-      `bin/argo app diff ${
+      `bin/argo app diff --local-repo-root=${process.cwd()} ${
         appThree().metadata.name
-      } --revision=1.2.2 --exit-code=false --auth-token=tokenfake --server=argocd.example `
+      } --revision=1.2.2 --exit-code=false --auth-token=fakeArgoCdToken --server=argocd.example `
     );
   });
 });
@@ -203,7 +204,20 @@ function appCollection(): AppCollection {
 }
 
 function argocdServer(): ArgoCDServer {
-  return new ArgoCDServer('argocd.example', 'tokenfake');
+  const actionInput: ActionInput = {
+    arch: 'linux',
+    argocd: {
+      excludePaths: [],
+      extraCliArgs: '',
+      fqdn: 'argocd.example',
+      protocol: 'https',
+      token: 'fakeArgoCdToken',
+      uri: 'https://argocd.example',
+      cliVersion: '1.0.0',
+    },
+    githubToken: 'fakeGithubToken'
+  }
+  return new ArgoCDServer(actionInput);
 }
 
 function exceCommandAppLocalDiffAppOfApp(): ExecResult {
