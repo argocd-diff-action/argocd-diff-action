@@ -34412,7 +34412,7 @@ class ArgoCDServer {
     async getAppDiff(app, params = []) {
         let res;
         try {
-            res = await this.command(`app diff ${app.metadata.name} ${params.join(' ')} --exit-code=false`);
+            res = await this.command(`app diff --local-repo-root=${process.cwd()} ${app.metadata.name} ${params.join(' ')} --exit-code=false`);
             core.debug(`stdout: ${res.stdout}`);
             core.debug(`stderr: ${res.stderr}`);
             return { app, diff: res.stdout };

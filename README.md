@@ -44,15 +44,15 @@ jobs:
 
 <!--(inputs-start)-->
 
-|          Name           | Required |  Default   | Description                                                                                                                                 |
-|:-----------------------:|:--------:|:----------:|---------------------------------------------------------------------------------------------------------------------------------------------|
-|  `argocd-server-fqdn`   |   true   |            | ArgoCD server FQDN (i.e., without the protocol)                                                                                             |
-|   `argocd-server-tls`   |  false   |    true    | Use TLS to communicate with ArgoCD                                                                                                          |
-|     `argocd-token`      |   true   |            | ArgoCD token for a local or project-scoped user https://argoproj.github.io/argo-cd/operator-manual/user-management/#local-usersaccounts-v15 |
-|    `argocd-version`     |  false   |            | `argocd` command version to install. Defaults to the server version.                                                                        |
-|     `github-token`      |   true   |            | Github Token                                                                                                                                |
-| `argocd-extra-cli-args` |  false   | --grpc-web | Extra arguments to pass to the argocd CLI                                                                                                   |
-| `argocd-exclude-paths`  |  false   |            | ArgoCD app paths to exclude in comma separated list                                                                                         |
+| Name  | Required | Default | Description |
+| :---: | :------: | :-----: | ----------- |
+| `argocd-server-fqdn` | true |  | ArgoCD server FQDN (i.e., without the protocol) |
+| `argocd-server-tls` | false | true | Use TLS to communicate with ArgoCD |
+| `argocd-token` | true |  | ArgoCD token for a local or project-scoped user https://argoproj.github.io/argo-cd/operator-manual/user-management/#local-usersaccounts-v15 |
+| `argocd-version` | false |  | `argocd` command version to install. Defaults to the server version. |
+| `github-token` | true |  | Github Token |
+| `argocd-extra-cli-args` | false | --grpc-web | Extra arguments to pass to the argocd CLI |
+| `argocd-exclude-paths` | false |  | ArgoCD app paths to exclude in comma separated list |
 
 <!--(inputs-end)-->
 
@@ -60,9 +60,9 @@ jobs:
 
 <!--(outputs-start)-->
 
-| Name | Description |
-|:----:|-------------|
-|      |
+| Name  | Description |
+| :---: | ----------- |
+|  |
 
 <!--(outputs-end)-->
 

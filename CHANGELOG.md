@@ -1,3 +1,14 @@
+## [0.4.0](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.3.1...0.4.0) (2024-12-22)
+
+### Continous Integration
+
+* **stale:** add workflow dispatch ([cbdfaa1](https://github.com/argocd-diff-action/argocd-diff-action/commit/cbdfaa174f477f60113e99665b69621c7312b883))
+* **stale:** add write permission for issues and prs ([d38cdda](https://github.com/argocd-diff-action/argocd-diff-action/commit/d38cddacf9976ad35e5ed1e0282b19d96d9c1798))
+
+### Features
+
+* support plaintext protocol ([#81](https://github.com/argocd-diff-action/argocd-diff-action/issues/81)) ([e3737b4](https://github.com/argocd-diff-action/argocd-diff-action/commit/e3737b43347360942f816056f1995136ce4b6e2e)), closes [#73](https://github.com/argocd-diff-action/argocd-diff-action/issues/73)
+
 ## [0.3.1](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.3.0...0.3.1) (2024-12-20)
 
 ### Continous Integration
