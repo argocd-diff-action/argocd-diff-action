@@ -43,7 +43,7 @@
     "@semantic-release/github": "^11.0.1",
     "@semantic-release/release-notes-generator": "^14.0.2",
     "@types/jest": "^29.5.14",
-    "@types/node": "^20.17.10",
+    "@types/node": "^22.10.2",
     "@types/sinon": "^17.0.3",
     "@vercel/ncc": "^0.38.3",
     "conventional-changelog-conventionalcommits": "^8.0.0",
