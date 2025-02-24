@@ -20,7 +20,7 @@ export default function getActionInput(): ActionInput {
   const protocol = useTls ? 'https' : 'http';
   let extraCliArgs = core.getInput('argocd-extra-cli-args');
 
-  if (useTls) {
+  if (!useTls) {
     extraCliArgs += ' --plaintext';
   }
 
