@@ -1,3 +1,9 @@
+## [0.4.1](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.4.0...0.4.1) (2025-02-24)
+
+### Bug Fixes
+
+* invert logic when adding plaintext cli arg ([11c98ea](https://github.com/argocd-diff-action/argocd-diff-action/commit/11c98ea0a0f213f209acb1db1f7a7e79e1d861a7))
+
 ## [0.4.0](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.3.1...0.4.0) (2024-12-22)
 
 ### Continous Integration

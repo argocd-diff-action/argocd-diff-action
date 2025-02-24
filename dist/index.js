@@ -34511,7 +34511,7 @@ function getActionInput() {
     const fqdn = core.getInput('argocd-server-fqdn');
     const protocol = useTls ? 'https' : 'http';
     let extraCliArgs = core.getInput('argocd-extra-cli-args');
-    if (useTls) {
+    if (!useTls) {
         extraCliArgs += ' --plaintext';
     }
     return {
