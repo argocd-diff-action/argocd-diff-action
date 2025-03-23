@@ -34359,12 +34359,22 @@ async function execCommand(command, options = {}) {
     });
 }
 function scrubSecrets(input) {
+    const mask = '***';
     let output = input;
     // Match argocd `--auth-token` flag used when logging in. Used to scrub this
     // from the PR comment body.
     const authTokenMatches = input.match(/--auth-token=((\w+\S)+)/);
     if (authTokenMatches) {
-        output = output.replace(new RegExp(authTokenMatches[1] ?? 'undefined', 'g'), '***');
+        output = output.replace(new RegExp(authTokenMatches[1] ?? 'undefined', 'g'), mask);
+    }
+    // Scrub all header values from the input string.
+    const headerPattern = new RegExp('--header\\s+"(?<name>[\\w-]+):\\s*(?<value>[^"]*)"', 'g');
+    const headerMatches = [...input.matchAll(headerPattern)];
+    for (const match of headerMatches) {
+        const value = match.groups?.value;
+        if (value) {
+            output = output.replace(value, mask);
+        }
     }
     return output;
 }
@@ -34381,11 +34391,13 @@ class ArgoCDServer {
     uri;
     fqdn;
     token;
+    headers;
     constructor(actionInput) {
         this.uri = actionInput.argocd.uri;
         this.fqdn = actionInput.argocd.fqdn;
         this.token = actionInput.argocd.token;
         this.extraCommandArgs = actionInput.argocd.extraCliArgs;
+        this.headers = actionInput.argocd.headers;
     }
     async installArgoCDCommand(version, arch = 'linux') {
         if (version == '') {
@@ -34396,6 +34408,11 @@ class ArgoCDServer {
     }
     async command(params) {
         let cmd = `${this.binaryPath} ${params} --auth-token=${this.token} --server=${this.fqdn} ${this.extraCommandArgs}`;
+        if (Object.keys(this.headers).length !== 0) {
+            for (const header of Object.entries(this.headers)) {
+                cmd += `--header "${header[0]}: ${header[1]}" `;
+            }
+        }
         core.debug(`Running: ${scrubSecrets(cmd)}`);
         return execCommand(cmd);
     }
@@ -34432,9 +34449,14 @@ class ArgoCDServer {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let responseJson;
         try {
+            let headers = { Cookie: `argocd.token=${this.token}` };
+            if (Object.keys(this.headers).length !== 0) {
+                headers = { ...headers, ...this.headers };
+            }
+            core.debug(`Making request with headers: ${Object.keys(headers)}`);
             const response = await fetch(url, {
                 method: method,
-                headers: { Cookie: `argocd.token=${this.token}` }
+                headers: headers
             });
             core.debug(`API call response code: ${response.status}`);
             responseJson = await response.json();
@@ -34523,10 +34545,25 @@ function getActionInput() {
             protocol,
             token: core.getInput('argocd-token'),
             uri: `${protocol}://${fqdn}`,
-            cliVersion: core.getInput('argocd-version')
+            cliVersion: core.getInput('argocd-version'),
+            headers: toHeaders(core.getInput('argocd-headers'))
         },
         githubToken: core.getInput('github-token'),
     };
+}
+function toHeaders(headerString) {
+    if (!headerString) {
+        return {};
+    }
+    return headerString
+        .split(',')
+        .reduce((acc, header) => {
+        const [name, ...values] = header.split(':');
+        if (name && values.length > 0) {
+            acc[name.trim()] = values.join(':').trim();
+        }
+        return acc;
+    }, {});
 }
 
 ;// CONCATENATED MODULE: ./src/main.ts

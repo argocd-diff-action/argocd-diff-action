@@ -27,6 +27,10 @@ inputs:
     description: ArgoCD app paths to exclude in comma separated list
     default: ''
     required: false
+  argocd-headers: 
+    description: "Additional HTTP headers to include in ArgoCD requests (format: 'Name: Value', comma-separated)'"
+    default: ''
+    required: false
 runs:
   using: 'node20'
   main: 'dist/index.js'

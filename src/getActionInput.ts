@@ -11,6 +11,7 @@ export interface ActionInput {
     token: string;
     uri: string;
     cliVersion: string;
+    headers: Record<string, string>;
   };
 }
 
@@ -33,8 +34,25 @@ export default function getActionInput(): ActionInput {
       protocol,
       token: core.getInput('argocd-token'),
       uri: `${protocol}://${fqdn}`,
-      cliVersion: core.getInput('argocd-version')
+      cliVersion: core.getInput('argocd-version'),
+      headers: toHeaders(core.getInput('argocd-headers'))
     },
     githubToken: core.getInput('github-token'),
   };
+}
+
+function toHeaders(headerString: string): Record<string, string> {
+  if (!headerString) {
+    return {};
+  }
+  
+  return headerString
+    .split(',')
+    .reduce((acc: Record<string, string>, header: string) => {
+      const [name, ...values] = header.split(':');
+      if (name && values.length > 0) {
+        acc[name.trim()] = values.join(':').trim();
+      }
+      return acc;
+    }, {});
 }

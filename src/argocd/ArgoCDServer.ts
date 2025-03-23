@@ -15,12 +15,14 @@ export class ArgoCDServer {
   uri: string;
   fqdn: string;
   token: string;
+  headers: Record<string, string>;
 
   constructor(actionInput: ActionInput) {
     this.uri = actionInput.argocd.uri;
     this.fqdn = actionInput.argocd.fqdn;
     this.token = actionInput.argocd.token;
     this.extraCommandArgs = actionInput.argocd.extraCliArgs;
+    this.headers = actionInput.argocd.headers
   }
 
   async installArgoCDCommand(version: string, arch = 'linux'): Promise<void> {
@@ -37,6 +39,11 @@ export class ArgoCDServer {
 
   async command(params: string): Promise<ExecResult> {
     let cmd = `${this.binaryPath} ${params} --auth-token=${this.token} --server=${this.fqdn} ${this.extraCommandArgs}`;
+    if (Object.keys(this.headers).length !== 0) {
+      for (const header of Object.entries(this.headers)) {
+        cmd += `--header "${header[0]}: ${header[1]}" `;
+      }
+    }
     core.debug(`Running: ${scrubSecrets(cmd)}`);
     return execCommand(cmd);
   }
@@ -82,9 +89,14 @@ export class ArgoCDServer {
     let responseJson: any;
 
     try {
+      let headers = { Cookie: `argocd.token=${this.token}` }
+      if (Object.keys(this.headers).length !== 0) {
+        headers = { ...headers, ...this.headers }
+      }
+      core.debug(`Making request with headers: ${Object.keys(headers)}`);
       const response = await fetch(url, {
         method: method,
-        headers: { Cookie: `argocd.token=${this.token}` }
+        headers: headers
       });
       core.debug(`API call response code: ${response.status}`);
       responseJson = await response.json();
