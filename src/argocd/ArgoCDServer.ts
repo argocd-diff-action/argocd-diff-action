@@ -10,161 +10,166 @@ import { type ExecResult, execCommand, scrubSecrets } from '../lib.js';
 import { ActionInput } from '../getActionInput.js';
 
 export class ArgoCDServer {
-  binaryPath = 'bin/argo';
-  extraCommandArgs: string;
-  uri: string;
-  fqdn: string;
-  token: string;
+    binaryPath = 'bin/argo';
+    extraCommandArgs: string;
+    uri: string;
+    fqdn: string;
+    token: string;
 
-  constructor(actionInput: ActionInput) {
-    this.uri = actionInput.argocd.uri;
-    this.fqdn = actionInput.argocd.fqdn;
-    this.token = actionInput.argocd.token;
-    this.extraCommandArgs = actionInput.argocd.extraCliArgs;
-  }
-
-  async installArgoCDCommand(version: string, arch = 'linux'): Promise<void> {
-    if (version == '') {
-      version = await this.getServerVersion();
+    constructor(actionInput: ActionInput) {
+        this.uri = actionInput.argocd.uri;
+        this.fqdn = actionInput.argocd.fqdn;
+        this.token = actionInput.argocd.token;
+        this.extraCommandArgs = actionInput.argocd.extraCliArgs;
     }
 
-    await downloadTool(
-      `https://github.com/argoproj/argo-cd/releases/download/${version}/argocd-${arch}-amd64`,
-      this.binaryPath
-    );
-    chmodSync(this.binaryPath, '755');
-  }
+    async installArgoCDCommand(version: string, arch = 'linux'): Promise<void> {
+        if (version == '') {
+            version = await this.getServerVersion();
+        }
 
-  async command(params: string): Promise<ExecResult> {
-    let cmd = `${this.binaryPath} ${params} --auth-token=${this.token} --server=${this.fqdn} ${this.extraCommandArgs}`;
-    core.debug(`Running: ${scrubSecrets(cmd)}`);
-    return execCommand(cmd);
-  }
-
-  async getAppLocalDiff(app: App): Promise<Diff> {
-    if (app.spec.source?.path === undefined) {
-      core.error(`Cannot diff ${app.metadata.name}, no source.path`);
-
-      return { app, diff: '' } as Diff;
+        await downloadTool(
+            `https://github.com/argoproj/argo-cd/releases/download/${version}/argocd-${arch}-amd64`,
+            this.binaryPath,
+        );
+        chmodSync(this.binaryPath, '755');
     }
 
-    return this.getAppDiff(app, [`--local=${app.spec.source.path}`]);
-  }
-
-  async getAppRevisionDiff(app: App, targetRevision: string): Promise<Diff> {
-    return this.getAppDiff(app, [`--revision=${targetRevision}`]);
-  }
-
-  async getAppDiff(app: App, params: string[] = []): Promise<Diff> {
-    let res: ExecResult;
-    try {
-      res = await this.command(
-        `app diff --local-repo-root=${process.cwd()} ${app.metadata.name} ${params.join(' ')} --exit-code=false`
-      );
-      core.debug(`stdout: ${res.stdout}`);
-      core.debug(`stderr: ${res.stderr}`);
-      return { app, diff: res.stdout } as Diff;
-    } catch (e) {
-      res = e as ExecResult;
-      core.error('Unexpected error when fetching app diff:');
-      core.error(`${res.err}`);
-      return { app, diff: '', error: res } as Diff;
+    async command(params: string): Promise<ExecResult> {
+        const cmd = `${this.binaryPath} ${params} --auth-token=${this.token} --server=${this.fqdn} ${this.extraCommandArgs}`;
+        core.debug(`Running: ${scrubSecrets(cmd)}`);
+        return execCommand(cmd);
     }
-  }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async api(endpoint: string, params: string[] = [], method = 'GET'): Promise<any> {
-    const url = `https://${this.fqdn}/api/${endpoint}?${params.join('&')}}`;
-    core.debug(`Making API call to: '${url}'`);
+    async getAppLocalDiff(app: App): Promise<Diff> {
+        if (app.spec.source?.path === undefined) {
+            core.error(`Cannot diff ${app.metadata.name}, no source.path`);
 
-    // response.json() returns `any`.
+            return { app, diff: '' } as Diff;
+        }
+
+        return this.getAppDiff(app, [`--local=${app.spec.source.path}`]);
+    }
+
+    async getAppRevisionDiff(app: App, targetRevision: string): Promise<Diff> {
+        return this.getAppDiff(app, [`--revision=${targetRevision}`]);
+    }
+
+    async getAppDiff(app: App, params: string[] = []): Promise<Diff> {
+        let res: ExecResult;
+        try {
+            res = await this.command(
+                `app diff --local-repo-root=${process.cwd()} ${app.metadata.name} ${params.join(' ')} --exit-code=false`,
+            );
+            core.debug(`stdout: ${res.stdout}`);
+            core.debug(`stderr: ${res.stderr}`);
+            return { app, diff: res.stdout } as Diff;
+        }
+        catch (e) {
+            res = e as ExecResult;
+            core.error('Unexpected error when fetching app diff:');
+            core.error(`${res.err}`);
+            return { app, diff: '', error: res } as Diff;
+        }
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let responseJson: any;
+    async api(endpoint: string, params: string[] = [], method = 'GET'): Promise<any> {
+        const url = `https://${this.fqdn}/api/${endpoint}?${params.join('&')}}`;
+        core.debug(`Making API call to: '${url}'`);
 
-    try {
-      const response = await fetch(url, {
-        method: method,
-        headers: { Cookie: `argocd.token=${this.token}` }
-      });
-      core.debug(`API call response code: ${response.status}`);
-      responseJson = await response.json();
-    } catch (err) {
-      if (err instanceof Error) {
-        core.error(`Failed to fetch ${endpoint} from ${this.fqdn}.`);
-        core.error(err.message);
-      }
-      throw err;
+        // response.json() returns `any`.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let responseJson: any;
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: { Cookie: `argocd.token=${this.token}` },
+            });
+            core.debug(`API call response code: ${response.status}`);
+            responseJson = await response.json();
+        }
+        catch (err) {
+            if (err instanceof Error) {
+                core.error(`Failed to fetch ${endpoint} from ${this.fqdn}.`);
+                core.error(err.message);
+            }
+            throw err;
+        }
+
+        if (responseJson.error) {
+            core.error('Error returned by API');
+            core.error(responseJson);
+        }
+
+        return responseJson;
     }
 
-    if (responseJson.error) {
-      core.error('Error returned by API');
-      core.error(responseJson);
+    async getAppCollection(): Promise<AppCollection> {
+        const responseJson = await this.api('v1/applications');
+        return new AppCollection(responseJson.items);
     }
 
-    return responseJson;
-  }
+    async getServerVersion(): Promise<string> {
+        const responseJson = await this.api('version');
+        // Return the release tag without the build metadata (e.g., v2.4.0+91aefab -> v2.4.0).
+        return responseJson.Version.split('+')[0];
+    }
 
-  async getAppCollection(): Promise<AppCollection> {
-    let responseJson = await this.api('v1/applications');
-    return new AppCollection(responseJson.items);
-  }
+    async getAppCollectionLocalDiffs(appCollection: AppCollection): Promise<Diff[]> {
+        const appCollectionDiffPromises: Promise<Diff>[] = [];
+        appCollection.apps.forEach((app) => {
+            if (app.spec.source?.path !== undefined) {
+                appCollectionDiffPromises.push(this.getAppLocalDiff(app));
+            }
+        });
+        return this.getAppCollectionDiffs(appCollectionDiffPromises);
+    }
 
-  async getServerVersion(): Promise<string> {
-    let responseJson = await this.api('version');
-    // Return the release tag without the build metadata (e.g., v2.4.0+91aefab -> v2.4.0).
-    return responseJson.Version.split('+')[0];
-  }
+    async getAppCollectionRevisionDiffs(
+        appCollection: AppCollection,
+        appTargetRevisions: AppTargetRevision[],
+    ): Promise<Diff[]> {
+        const appCollectionDiffPromises: Promise<Diff>[] = [];
+        appTargetRevisions.forEach((appTargetRevision) => {
+            const app = appCollection.getAppByName(appTargetRevision.appName);
+            if (app) {
+                appCollectionDiffPromises.push(
+                    this.getAppRevisionDiff(app, appTargetRevision.targetRevision),
+                );
+            }
+            else {
+                core.warning(
+                    `Could not find Application '${appTargetRevision.appName}' in AppCollection for revision diffs.`,
+                );
+            }
+        });
+        return this.getAppCollectionDiffs(appCollectionDiffPromises);
+    }
 
-  async getAppCollectionLocalDiffs(appCollection: AppCollection): Promise<Diff[]> {
-    let appCollectionDiffPromises: Promise<Diff>[] = [];
-    appCollection.apps.forEach(app => {
-      if (app.spec.source?.path !== undefined) {
-        appCollectionDiffPromises.push(this.getAppLocalDiff(app));
-      }
-    });
-    return this.getAppCollectionDiffs(appCollectionDiffPromises);
-  }
+    async getAppCollectionDiffs(appCollectionDiffPromises: Promise<Diff>[]): Promise<Diff[]> {
+        const diffs: Diff[] = [];
 
-  async getAppCollectionRevisionDiffs(
-    appCollection: AppCollection,
-    appTargetRevisions: AppTargetRevision[]
-  ): Promise<Diff[]> {
-    let appCollectionDiffPromises: Promise<Diff>[] = [];
-    appTargetRevisions.forEach(appTargetRevision => {
-      let app = appCollection.getAppByName(appTargetRevision.appName);
-      if (app) {
-        appCollectionDiffPromises.push(
-          this.getAppRevisionDiff(app, appTargetRevision.targetRevision)
+        const results = (await Promise.allSettled(appCollectionDiffPromises)).filter(
+            result => result.status === 'fulfilled',
         );
-      } else {
-        core.warning(
-          `Could not find Application '${appTargetRevision.appName}' in AppCollection for revision diffs.`
-        );
-      }
-    });
-    return this.getAppCollectionDiffs(appCollectionDiffPromises);
-  }
 
-  async getAppCollectionDiffs(appCollectionDiffPromises: Promise<Diff>[]): Promise<Diff[]> {
-    const diffs: Diff[] = [];
+        results.forEach((result) => {
+            const appDiff = result.value;
+            if (appDiff.error) {
+                core.setFailed(`ArgoCD diff failed for Application '${appDiff.app.metadata.name}'`);
+                diffs.push(appDiff); // Surface the error to the PR comment.
+            }
+            else if (appDiff.diff != '') {
+                core.info(`Found diff for Application '${appDiff.app.metadata.name}'.`);
+                diffs.push(appDiff);
+            }
+            else {
+                core.debug(`No diff found for Application '${appDiff.app.metadata.name}'.`);
+            }
+        });
 
-    let results = (await Promise.allSettled(appCollectionDiffPromises)).filter(
-      result => result.status === 'fulfilled'
-    );
-
-    results.forEach(result => {
-      let appDiff = result.value;
-      if (appDiff.error) {
-        core.setFailed(`ArgoCD diff failed for Application '${appDiff.app.metadata.name}'`);
-        diffs.push(appDiff); // Surface the error to the PR comment.
-      } else if (appDiff.diff != '') {
-        core.info(`Found diff for Application '${appDiff.app.metadata.name}'.`);
-        diffs.push(appDiff);
-      } else {
-        core.debug(`No diff found for Application '${appDiff.app.metadata.name}'.`);
-      }
-    });
-
-    return diffs;
-  }
+        return diffs;
+    }
 }

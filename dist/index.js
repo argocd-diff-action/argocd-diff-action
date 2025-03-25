@@ -34253,7 +34253,7 @@ class AppCollection {
         if (excludedPaths.length === 0) {
             return this;
         }
-        return new AppCollection(this.apps.filter(app => {
+        return new AppCollection(this.apps.filter((app) => {
             return app.spec.source?.path !== undefined && !excludedPaths.includes(app.spec.source.path);
         }));
     }
@@ -34261,7 +34261,7 @@ class AppCollection {
         if (this.apps.length === 0) {
             return this;
         }
-        return new AppCollection(this.apps.filter(app => {
+        return new AppCollection(this.apps.filter((app) => {
             console.log(app);
             return app.spec.source?.repoURL !== undefined && app.spec.source.repoURL.includes(repoMatch);
         }));
@@ -34270,7 +34270,7 @@ class AppCollection {
         if (this.apps.length === 0) {
             return this;
         }
-        return new AppCollection(this.apps.filter(app => {
+        return new AppCollection(this.apps.filter((app) => {
             return app.spec.source?.targetRevision !== undefined && targetRevisions.includes(app.spec.source.targetRevision);
         }));
     }
@@ -34278,7 +34278,7 @@ class AppCollection {
         if (this.apps.length === 0) {
             return;
         }
-        return this.apps.find(app => {
+        return this.apps.find((app) => {
             return name === app.metadata.name;
         });
     }
@@ -34290,11 +34290,11 @@ var external_child_process_ = __nccwpck_require__(5317);
 // lib.ts - utility functions
 
 async function execCommand(command, options = {}) {
-    return new Promise(async (done, failed) => {
+    return new Promise((done, failed) => {
         (0,external_child_process_.exec)(command, options, (err, stdout, stderr) => {
             const res = {
                 stdout,
-                stderr
+                stderr,
             };
             if (err) {
                 res.err = err;
@@ -34342,7 +34342,7 @@ class ArgoCDServer {
         (0,external_fs_.chmodSync)(this.binaryPath, '755');
     }
     async command(params) {
-        let cmd = `${this.binaryPath} ${params} --auth-token=${this.token} --server=${this.fqdn} ${this.extraCommandArgs}`;
+        const cmd = `${this.binaryPath} ${params} --auth-token=${this.token} --server=${this.fqdn} ${this.extraCommandArgs}`;
         core.debug(`Running: ${scrubSecrets(cmd)}`);
         return execCommand(cmd);
     }
@@ -34381,7 +34381,7 @@ class ArgoCDServer {
         try {
             const response = await fetch(url, {
                 method: method,
-                headers: { Cookie: `argocd.token=${this.token}` }
+                headers: { Cookie: `argocd.token=${this.token}` },
             });
             core.debug(`API call response code: ${response.status}`);
             responseJson = await response.json();
@@ -34400,17 +34400,17 @@ class ArgoCDServer {
         return responseJson;
     }
     async getAppCollection() {
-        let responseJson = await this.api('v1/applications');
+        const responseJson = await this.api('v1/applications');
         return new AppCollection(responseJson.items);
     }
     async getServerVersion() {
-        let responseJson = await this.api('version');
+        const responseJson = await this.api('version');
         // Return the release tag without the build metadata (e.g., v2.4.0+91aefab -> v2.4.0).
         return responseJson.Version.split('+')[0];
     }
     async getAppCollectionLocalDiffs(appCollection) {
-        let appCollectionDiffPromises = [];
-        appCollection.apps.forEach(app => {
+        const appCollectionDiffPromises = [];
+        appCollection.apps.forEach((app) => {
             if (app.spec.source?.path !== undefined) {
                 appCollectionDiffPromises.push(this.getAppLocalDiff(app));
             }
@@ -34418,9 +34418,9 @@ class ArgoCDServer {
         return this.getAppCollectionDiffs(appCollectionDiffPromises);
     }
     async getAppCollectionRevisionDiffs(appCollection, appTargetRevisions) {
-        let appCollectionDiffPromises = [];
-        appTargetRevisions.forEach(appTargetRevision => {
-            let app = appCollection.getAppByName(appTargetRevision.appName);
+        const appCollectionDiffPromises = [];
+        appTargetRevisions.forEach((appTargetRevision) => {
+            const app = appCollection.getAppByName(appTargetRevision.appName);
             if (app) {
                 appCollectionDiffPromises.push(this.getAppRevisionDiff(app, appTargetRevision.targetRevision));
             }
@@ -34432,9 +34432,9 @@ class ArgoCDServer {
     }
     async getAppCollectionDiffs(appCollectionDiffPromises) {
         const diffs = [];
-        let results = (await Promise.allSettled(appCollectionDiffPromises)).filter(result => result.status === 'fulfilled');
-        results.forEach(result => {
-            let appDiff = result.value;
+        const results = (await Promise.allSettled(appCollectionDiffPromises)).filter(result => result.status === 'fulfilled');
+        results.forEach((result) => {
+            const appDiff = result.value;
             if (appDiff.error) {
                 core.setFailed(`ArgoCD diff failed for Application '${appDiff.app.metadata.name}'`);
                 diffs.push(appDiff); // Surface the error to the PR comment.
@@ -34470,7 +34470,7 @@ function getActionInput() {
             protocol,
             token: core.getInput('argocd-token'),
             uri: `${protocol}://${fqdn}`,
-            cliVersion: core.getInput('argocd-version')
+            cliVersion: core.getInput('argocd-version'),
         },
         githubToken: core.getInput('github-token'),
     };
@@ -34482,7 +34482,7 @@ function getActionInput() {
 
 
 
-run().catch(e => {
+run().catch((e) => {
     console.error(e);
     core.setFailed(e);
 });
@@ -34490,7 +34490,7 @@ async function run() {
     const actionInput = getActionInput();
     const argocdServer = new ArgoCDServer(actionInput);
     await argocdServer.installArgoCDCommand(actionInput.argocd.cliVersion, actionInput.arch);
-    let appAllCollection = await argocdServer.getAppCollection();
+    const appAllCollection = await argocdServer.getAppCollection();
     if (appAllCollection.apps == null) {
         // When the account used for the API key does not have at least read-only
         // access it will result in no Applications being returned.
@@ -34500,17 +34500,17 @@ async function run() {
     // We can only run `diff --local` on files that are for this current repo.
     // Filter Apps to those following the repo trunk, since that is what the PR is
     // comparing against (in most cases).
-    let appLocalCollection = appAllCollection
+    const appLocalCollection = appAllCollection
         .filterByRepo(`${github.context.repo.owner}/${github.context.repo.repo}`)
         .filterByTargetRevision()
         .filterByExcludedPath(actionInput.argocd.excludePaths);
     core.info(`Found apps: ${appLocalCollection.apps.map(a => a.metadata.name).join(', ')}`);
-    let appDiffs = await argocdServer.getAppCollectionLocalDiffs(appLocalCollection);
+    const appDiffs = await argocdServer.getAppCollectionLocalDiffs(appLocalCollection);
     // Get diffs for apps of apps with targetRevision changes from local app diffs.
     // Note that this won't include any other changes to the App of App (e.g., Helm
     // value changes).
-    let appOfAppTargetRevisions = getAppOfAppTargetRevisions(appDiffs);
-    let appOfAppDiffs = await argocdServer.getAppCollectionRevisionDiffs(appAllCollection, appOfAppTargetRevisions);
+    const appOfAppTargetRevisions = getAppOfAppTargetRevisions(appDiffs);
+    const appOfAppDiffs = await argocdServer.getAppCollectionRevisionDiffs(appAllCollection, appOfAppTargetRevisions);
     await postDiffComment([...appDiffs, ...appOfAppDiffs], actionInput);
 }
 async function postDiffComment(diffs, actionInput) {
@@ -34568,7 +34568,7 @@ _Updated at ${new Date().toLocaleString('en-CA', { timeZone: 'America/Toronto' }
     const commentsResponse = await octokit.rest.issues.listComments({
         issue_number: github.context.issue.number,
         owner,
-        repo
+        repo,
     });
     const existingComment = commentsResponse.data.find(d => d.body?.includes(headerPrefix) ?? false);
     // Existing comments should be updated even if there are no changes this round in order to indicate that
@@ -34577,7 +34577,7 @@ _Updated at ${new Date().toLocaleString('en-CA', { timeZone: 'America/Toronto' }
             owner,
             repo,
             comment_id: existingComment.id,
-            body: output
+            body: output,
         });
         // Only post a new comment when there are changes
     }
@@ -34586,19 +34586,19 @@ _Updated at ${new Date().toLocaleString('en-CA', { timeZone: 'America/Toronto' }
             issue_number: github.context.issue.number,
             owner,
             repo,
-            body: output
+            body: output,
         });
     }
 }
 function getAppOfAppTargetRevisions(diffs) {
-    let appTargetRevisions = [];
-    diffs.forEach(appDiff => {
+    const appTargetRevisions = [];
+    diffs.forEach((appDiff) => {
         // Check for diffs of an Application (App of App).
         if (appDiff.diff.includes('argoproj.io/Application')) {
             core.debug(`Found Application in the diff for Application '${appDiff.app.metadata.name}'.`);
-            let changedResourceDiffs = appDiff.diff.split('===== ([\\w\\S]+/[\\w\\S]+ ){2}======');
+            const changedResourceDiffs = appDiff.diff.split('===== ([\\w\\S]+/[\\w\\S]+ ){2}======');
             changedResourceDiffs.forEach(async (diff) => {
-                let match = diff.match('===== (?:argoproj.io\\/Application) (\\w+/\\S+) ======\\n(?:.*\\n)*>\\s+targetRevision: (.*)');
+                const match = diff.match('===== (?:argoproj.io\\/Application) (\\w+/\\S+) ======\\n(?:.*\\n)*>\\s+targetRevision: (.*)');
                 if (match) {
                     const appName = match[1]?.split('/')[1] ?? 'undefined';
                     const targetRevision = match[2] ?? 'undefined';

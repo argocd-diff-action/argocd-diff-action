@@ -1,4 +1,4 @@
 export interface AppTargetRevision {
-  appName: string;
-  targetRevision: string;
+    appName: string;
+    targetRevision: string;
 }

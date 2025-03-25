@@ -1,5 +1,6 @@
 # Build application
 dist/
+build/
 # Dependency directory
 node_modules
 
