@@ -216,6 +216,7 @@ function argocdServer(): ArgoCDServer {
             cliVersion: '1.0.0',
         },
         githubToken: 'fakeGithubToken',
+        timezone: 'America/Toronto',
     };
     return new ArgoCDServer(actionInput);
 }

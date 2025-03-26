@@ -17,17 +17,26 @@ test('scrubSecrets replaces double quoted authorization header value with ***', 
 });
 
 test('scrubSecrets replaces singled quoted authorization header value with ***', () => {
-    const header = '--header "Authorization: Bearer super-secret-bearer-token"';
+    const header = '--header \'Authorization: Bearer super-secret-bearer-token\'';
     const appendedFlag = '--appended-flag=server.com';
     const input = `/bin/argocd --grpc-web  --server=https://argocd.example/ ${header} ${appendedFlag}`;
-    expect(scrubSecrets(input)).toContain('--header "Authorization: ***"');
+    expect(scrubSecrets(input)).toContain('--header \'Authorization: ***\'');
 });
 
-test('scrubSecrets replaces authorization header value with ***', () => {
-    const header = '--header Authorization:scrub-me-please';
+test('scrubSecrets should leave non-authorization headers alone', () => {
+    const header = '--header "Authorization: Bearer super-secret-bearer-token"';
+    const appendedFlags = '--appended-flag=server.com --header "Host: argocd.local"';
+    const input = `/bin/argocd --grpc-web  --server=https://argocd.example/ ${header} ${appendedFlags}`;
+    const output = scrubSecrets(input);
+    expect(output).toContain('--header "Authorization: ***"');
+    expect(output).toContain(appendedFlags);
+});
+
+test('scrubSecrets replaces authorization (lower case a) header value with ***', () => {
+    const header = '--header "authorization: Bearer super-secret-bearer-token"';
     const appendedFlag = '--appended-flag=server.com';
     const input = `/bin/argocd --grpc-web  --server=https://argocd.example/ ${header} ${appendedFlag}`;
-    expect(scrubSecrets(input)).toContain('--header "Authorization: ***"');
+    expect(scrubSecrets(input)).toContain('--header "authorization: ***"');
 });
 
 test('execCommand returns ExecResult', async () => {

@@ -2,8 +2,9 @@ import { createDefaultPreset, type JestConfigWithTsJest } from 'ts-jest';
 
 const preset = createDefaultPreset({
     tsconfig: {
-        // Temporary fix for 'SyntaxError: Cannot use import statement outside a module'
-        module: 'ESNext',
+        // Fixes warning about requiring isolateModules: true
+        // We don't want to enable isolateModules as it disabled important type checks
+        module: 'CommonJS',
     },
 });
 

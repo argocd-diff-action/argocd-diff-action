@@ -34,9 +34,10 @@ export function scrubSecrets(input: string): string {
     }
 
     // Scrub authorization header
-    const authorizationMatches = input.match(/(--header ['"]?Authorization:.+['"]?)/);
-    if (authorizationMatches && authorizationMatches[0]) {
-        output = output.replace(new RegExp(authorizationMatches[0], 'g'), '--header "Authorization: ***"');
+    const authorizationMatches = input.match(/["']Authorization:(.*?)["']/i);
+    if (authorizationMatches && authorizationMatches[1]) {
+        console.error(authorizationMatches);
+        output = output.replace(authorizationMatches[1], ` ***`);
     }
     return output;
 }
