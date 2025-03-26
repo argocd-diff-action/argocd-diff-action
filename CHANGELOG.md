@@ -1,3 +1,10 @@
+## [0.4.3](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.4.2...0.4.3) (2025-03-26)
+
+### Bug Fixes
+
+* make timezone an action input ([#141](https://github.com/argocd-diff-action/argocd-diff-action/issues/141)) ([766346c](https://github.com/argocd-diff-action/argocd-diff-action/commit/766346c9337aabdee98a3f23984aeab5ab51d5b7)), closes [#126](https://github.com/argocd-diff-action/argocd-diff-action/issues/126)
+* scrub authorization header values from pr comments ([#142](https://github.com/argocd-diff-action/argocd-diff-action/issues/142)) ([29e22c1](https://github.com/argocd-diff-action/argocd-diff-action/commit/29e22c1fcd3177b539de2ccf1cc2283fa6b00333)), closes [#132](https://github.com/argocd-diff-action/argocd-diff-action/issues/132)
+
 ## [0.4.2](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.4.1...0.4.2) (2025-03-26)
 
 ### Continous Integration

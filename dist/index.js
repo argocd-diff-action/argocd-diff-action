@@ -34310,8 +34310,14 @@ function scrubSecrets(input) {
     // Match argocd `--auth-token` flag used when logging in. Used to scrub this
     // from the PR comment body.
     const authTokenMatches = input.match(/--auth-token=((\w+\S)+)/);
-    if (authTokenMatches) {
-        output = output.replace(new RegExp(authTokenMatches[1] ?? 'undefined', 'g'), '***');
+    if (authTokenMatches && authTokenMatches[1]) {
+        output = output.replace(new RegExp(authTokenMatches[1], 'g'), '***');
+    }
+    // Scrub authorization header
+    const authorizationMatches = input.match(/["']Authorization:(.*?)["']/i);
+    if (authorizationMatches && authorizationMatches[1]) {
+        console.error(authorizationMatches);
+        output = output.replace(authorizationMatches[1], ` ***`);
     }
     return output;
 }
@@ -34473,6 +34479,7 @@ function getActionInput() {
             cliVersion: core.getInput('argocd-version'),
         },
         githubToken: core.getInput('github-token'),
+        timezone: core.getInput('timezone'),
     };
 }
 
@@ -34556,7 +34563,7 @@ ${diff}
 ## ArgoCD Diff ${actionInput.argocd.fqdn} for commit [\`${shortCommitSha}\`](${commitLink})
 `;
     const output = scrubSecrets(`${header}
-_Updated at ${new Date().toLocaleString('en-CA', { timeZone: 'America/Toronto' })} PT_
+_Updated at ${new Date().toLocaleString('en-CA', { timeZone: actionInput.timezone })} PT_
   ${diffOutput.join('\n')}
 
 | Legend | Status |
