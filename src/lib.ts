@@ -29,8 +29,14 @@ export function scrubSecrets(input: string): string {
     // Match argocd `--auth-token` flag used when logging in. Used to scrub this
     // from the PR comment body.
     const authTokenMatches = input.match(/--auth-token=((\w+\S)+)/);
-    if (authTokenMatches) {
-        output = output.replace(new RegExp(authTokenMatches[1] ?? 'undefined', 'g'), '***');
+    if (authTokenMatches && authTokenMatches[1]) {
+        output = output.replace(new RegExp(authTokenMatches[1], 'g'), '***');
+    }
+
+    // Scrub authorization header
+    const authorizationMatches = input.match(/(--header ['"]?Authorization:.+['"]?)/);
+    if (authorizationMatches && authorizationMatches[0]) {
+        output = output.replace(new RegExp(authorizationMatches[0], 'g'), '--header "Authorization: ***"');
     }
     return output;
 }
