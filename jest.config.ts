@@ -1,5 +1,15 @@
-const config: import('ts-jest').JestConfigWithTsJest = {
-    preset: 'ts-jest',
+import { createDefaultPreset, type JestConfigWithTsJest } from 'ts-jest';
+
+const preset = createDefaultPreset({
+    tsconfig: {
+        // Fixes warning about requiring isolateModules: true
+        // We don't want to enable isolateModules as it disabled important type checks
+        module: 'CommonJS',
+    },
+});
+
+const config: JestConfigWithTsJest = {
+    ...preset,
     clearMocks: true,
     moduleDirectories: ['node_modules', '<rootDir>'],
     modulePaths: ['<rootDir>'],
@@ -12,14 +22,6 @@ const config: import('ts-jest').JestConfigWithTsJest = {
     testMatch: ['**/*.test.ts'],
     testRunner: 'jest-circus/runner',
     verbose: true,
-    globals: {
-        'ts-jest': {
-            tsconfig: {
-                // Temporary fix for 'SyntaxError: Cannot use import statement outside a module'
-                module: 'ESNext',
-            },
-        },
-    },
 };
 
 export default config;
