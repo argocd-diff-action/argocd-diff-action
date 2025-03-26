@@ -1,3 +1,20 @@
+## [0.4.2](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.4.1...0.4.2) (2025-03-26)
+
+### Continous Integration
+
+* enable corepack ([fb3b95e](https://github.com/argocd-diff-action/argocd-diff-action/commit/fb3b95eda9f3cc3af170cad7d2ad604b99dd4b80))
+* update codeowners ([068dcc0](https://github.com/argocd-diff-action/argocd-diff-action/commit/068dcc09e40d3dd0c572a4c53eea935bd6116028))
+* update dependabot rules ([56d490c](https://github.com/argocd-diff-action/argocd-diff-action/commit/56d490c85ce58fca6a3c50ca730f318707a39274))
+
+### Refactors
+
+* switch to pnpm and update dependencies ([934edca](https://github.com/argocd-diff-action/argocd-diff-action/commit/934edcaa34cac8d64106a5337d923b92356cbefb))
+* update linting and fix tests ([e96acf6](https://github.com/argocd-diff-action/argocd-diff-action/commit/e96acf6b1d5c6b35fb5b84bbb4ccecfd390ab0c4))
+
+### Tests
+
+* missing dependency ([f55d113](https://github.com/argocd-diff-action/argocd-diff-action/commit/f55d1136bb0cf9982d8755bf3671c30a6970e14e))
+
 ## [0.4.1](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.4.0...0.4.1) (2025-02-24)
 
 ### Bug Fixes
