@@ -27,6 +27,9 @@ importers:
       '@fetch-mock/jest':
         specifier: ^0.2.15
         version: 0.2.15(@jest/globals@29.7.0)(jest@29.7.0(@types/node@20.17.27)(ts-node@10.9.2(@types/node@20.17.27)(typescript@5.8.2)))
+      '@jest/globals':
+        specifier: ^29.7.0
+        version: 29.7.0
       '@semantic-release/changelog':
         specifier: ^6.0.3
         version: 6.0.3(semantic-release@24.2.3(typescript@5.8.2))
