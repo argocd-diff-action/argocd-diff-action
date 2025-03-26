@@ -2,30 +2,34 @@ name: 'ArgoCD Diff'
 description: 'Diffs all ArgoCD apps in the repo, and provides the diff as a PR comment'
 author: 'argocd-diff-action'
 inputs:
-  argocd-server-fqdn: 
+  argocd-server-fqdn:
     description: ArgoCD server FQDN (i.e., without the protocol)
     required: true
   argocd-server-tls:
     description: Use TLS to communicate with ArgoCD
     default: 'true'
     required: false
-  argocd-token: 
+  argocd-token:
     description: ArgoCD token for a local or project-scoped user https://argoproj.github.io/argo-cd/operator-manual/user-management/#local-usersaccounts-v15
     required: true
-  argocd-version: 
+  argocd-version:
     description: '`argocd` command version to install. Defaults to the server version.'
     default: ''
     required: false
-  github-token: 
+  github-token:
     description: Github Token
     required: true
-  argocd-extra-cli-args: 
+  argocd-extra-cli-args:
     description: Extra arguments to pass to the argocd CLI
     default: --grpc-web
     required: false
-  argocd-exclude-paths: 
+  argocd-exclude-paths:
     description: ArgoCD app paths to exclude in comma separated list
     default: ''
+    required: false
+  timezone:
+    description: Timezone string used for dates in the github comment.
+    default: 'America/Toronto'
     required: false
 runs:
   using: 'node20'

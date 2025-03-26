@@ -2,7 +2,6 @@ import * as core from '@actions/core';
 
 export interface ActionInput {
     arch: string;
-    githubToken: string;
     argocd: {
         excludePaths: string[];
         extraCliArgs: string;
@@ -12,6 +11,8 @@ export interface ActionInput {
         uri: string;
         cliVersion: string;
     };
+    githubToken: string;
+    timezone: string;
 }
 
 export default function getActionInput(): ActionInput {
@@ -36,5 +37,6 @@ export default function getActionInput(): ActionInput {
             cliVersion: core.getInput('argocd-version'),
         },
         githubToken: core.getInput('github-token'),
+        timezone: core.getInput('timezone'),
     };
 }
