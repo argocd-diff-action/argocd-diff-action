@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint';
 import eslintImportPlugin from 'eslint-plugin-import';
 
 export default tseslint.config(
-    globalIgnores(['**/dist/', '**/lib/', '**/node_modules/']),
+    globalIgnores(['**/coverage/', '**/dist/', '**/lib/', '**/node_modules/']),
     eslint.configs.recommended,
     tseslint.configs.recommended,
     stylistic.configs.customize({

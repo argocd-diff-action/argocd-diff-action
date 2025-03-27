@@ -33,6 +33,14 @@ test('getAppByName does not find a App', () => {
     expect(appCollection().getAppByName('non-existent-app-name')).toStrictEqual(undefined);
 });
 
+test('empty app collection', () => {
+    const appCollection = new AppCollection([]);
+    expect(appCollection.getAppByName('non-existent-app-name')).toStrictEqual(undefined);
+    expect(appCollection.filterByExcludedPath([])).toStrictEqual(appCollection);
+    expect(appCollection.filterByRepo('non-existent-repo')).toStrictEqual(appCollection);
+    expect(appCollection.filterByTargetRevision()).toStrictEqual(appCollection);
+});
+
 function appOne(): App {
     return {
         metadata: {

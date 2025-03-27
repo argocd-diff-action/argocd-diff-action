@@ -111,7 +111,7 @@ _Updated at ${new Date().toLocaleString('en-CA', { timeZone: actionInput.timezon
 | ✅     | The app is synced in ArgoCD, and diffs you see are solely from this PR. |
 | ⚠️      | The app is out-of-sync in ArgoCD, and the diffs you see include those changes plus any from this PR. |
 | 🛑     | There was an error generating the ArgoCD diffs due to changes in this PR. |
-`);
+`, actionInput.argocd.headers);
 
     const commentsResponse = await octokit.rest.issues.listComments({
         issue_number: github.context.issue.number,

@@ -33,6 +33,7 @@ jobs:
         with:
           argocd-exclude-paths: 'path/to/exclude,'
           argocd-extra-cli-args: '--grpc-web'
+          argocd-headers: 'Authorization: ${{ secrets.ARGO_CD_AUTHORIZATION_TOKEN }},SomeOtherHeader: some-value'
           argocd-server-fqdn: 'argocd.example.com'
           argocd-token: '${{ secrets.ARGOCD_TOKEN }}'
           github-token: '${{ secrets.GITHUB_TOKEN }}'
