@@ -12,15 +12,17 @@ import { ActionInput } from '../getActionInput.js';
 export class ArgoCDServer {
     binaryPath = 'bin/argo';
     extraCommandArgs: string;
-    uri: string;
     fqdn: string;
+    headers: Map<string, string>;
     token: string;
+    uri: string;
 
     constructor(actionInput: ActionInput) {
-        this.uri = actionInput.argocd.uri;
-        this.fqdn = actionInput.argocd.fqdn;
-        this.token = actionInput.argocd.token;
         this.extraCommandArgs = actionInput.argocd.extraCliArgs;
+        this.fqdn = actionInput.argocd.fqdn;
+        this.headers = actionInput.argocd.headers;
+        this.token = actionInput.argocd.token;
+        this.uri = actionInput.argocd.uri;
     }
 
     async installArgoCDCommand(version: string, arch = 'linux'): Promise<void> {
@@ -36,8 +38,17 @@ export class ArgoCDServer {
     }
 
     async command(params: string): Promise<ExecResult> {
-        const cmd = `${this.binaryPath} ${params} --auth-token=${this.token} --server=${this.fqdn} ${this.extraCommandArgs}`;
-        core.debug(`Running: ${scrubSecrets(cmd)}`);
+        let cmd = `${this.binaryPath} ${params} --auth-token=${this.token} --server=${this.fqdn}`;
+
+        if (this.extraCommandArgs) {
+            cmd += ` ${this.extraCommandArgs}`;
+        }
+
+        for (const [header, value] of this.headers.entries()) {
+            cmd += ` --header "${header}: ${value}"`;
+        }
+
+        core.debug(`Running: ${scrubSecrets(cmd, this.headers)}`);
         return execCommand(cmd);
     }
 
@@ -85,7 +96,10 @@ export class ArgoCDServer {
         try {
             const response = await fetch(url, {
                 method: method,
-                headers: { Cookie: `argocd.token=${this.token}` },
+                headers: {
+                    Cookie: `argocd.token=${this.token}`,
+                    ...Object.fromEntries(this.headers),
+                },
             });
             core.debug(`API call response code: ${response.status}`);
             responseJson = await response.json();

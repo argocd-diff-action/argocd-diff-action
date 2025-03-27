@@ -1,6 +1,11 @@
 // lib.ts - utility functions
 import { exec, type ExecException, type ExecOptions } from 'child_process';
 
+const SENSITIVE_HEADERS = [
+    'Authorization',
+    'Proxy-Authorization',
+];
+
 export interface ExecResult {
     err?: Error;
     stdout: string;
@@ -24,7 +29,7 @@ export async function execCommand(command: string, options: ExecOptions = {}): P
     });
 }
 
-export function scrubSecrets(input: string): string {
+export function scrubSecrets(input: string, headers: Map<string, string>): string {
     let output = input;
     // Match argocd `--auth-token` flag used when logging in. Used to scrub this
     // from the PR comment body.
@@ -33,11 +38,11 @@ export function scrubSecrets(input: string): string {
         output = output.replace(new RegExp(authTokenMatches[1], 'g'), '***');
     }
 
-    // Scrub authorization header
-    const authorizationMatches = input.match(/["']Authorization:(.*?)["']/i);
-    if (authorizationMatches && authorizationMatches[1]) {
-        console.error(authorizationMatches);
-        output = output.replace(authorizationMatches[1], ` ***`);
+    for (const header of SENSITIVE_HEADERS) {
+        if (headers.has(header)) {
+            output = output.replaceAll(`${header}: ${headers.get(header)}`, `${header}: ***`);
+        }
     }
+
     return output;
 }
