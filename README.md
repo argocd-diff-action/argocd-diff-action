@@ -48,13 +48,14 @@ jobs:
 
 | Name  | Required | Default | Description |
 | :---: | :------: | :-----: | ----------- |
+| `argocd-exclude-paths` | false |  | ArgoCD app paths to exclude in comma separated list |
+| `argocd-extra-cli-args` | false | --grpc-web | Extra arguments to pass to the argocd CLI |
+| `argocd-headers` | false |  | A list of headers to pass to argocd |
 | `argocd-server-fqdn` | true |  | ArgoCD server FQDN (i.e., without the protocol) |
 | `argocd-server-tls` | false | true | Use TLS to communicate with ArgoCD |
 | `argocd-token` | true |  | ArgoCD token for a local or project-scoped user https://argoproj.github.io/argo-cd/operator-manual/user-management/#local-usersaccounts-v15 |
 | `argocd-version` | false |  | `argocd` command version to install. Defaults to the server version. |
 | `github-token` | true |  | Github Token |
-| `argocd-extra-cli-args` | false | --grpc-web | Extra arguments to pass to the argocd CLI |
-| `argocd-exclude-paths` | false |  | ArgoCD app paths to exclude in comma separated list |
 | `timezone` | false | America/Toronto | Timezone string used for dates in the github comment. |
 
 <!--(inputs-end)-->

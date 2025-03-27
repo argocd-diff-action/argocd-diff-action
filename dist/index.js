@@ -34225,6 +34225,35 @@ module.exports = parseParams
 /******/ }
 /******/ 
 /************************************************************************/
+/******/ /* webpack/runtime/compat get default export */
+/******/ (() => {
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__nccwpck_require__.n = (module) => {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			() => (module['default']) :
+/******/ 			() => (module);
+/******/ 		__nccwpck_require__.d(getter, { a: getter });
+/******/ 		return getter;
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/define property getters */
+/******/ (() => {
+/******/ 	// define getter functions for harmony exports
+/******/ 	__nccwpck_require__.d = (exports, definition) => {
+/******/ 		for(var key in definition) {
+/******/ 			if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 				Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 			}
+/******/ 		}
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/hasOwnProperty shorthand */
+/******/ (() => {
+/******/ 	__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ })();
+/******/ 
 /******/ /* webpack/runtime/compat */
 /******/ 
 /******/ if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = new URL('.', import.meta.url).pathname.slice(import.meta.url.match(/^file:\/\/\/\w:/) ? 1 : 0, -1) + "/";
@@ -34289,6 +34318,10 @@ var external_child_process_ = __nccwpck_require__(5317);
 ;// CONCATENATED MODULE: ./src/lib.ts
 // lib.ts - utility functions
 
+const SENSITIVE_HEADERS = [
+    'Authorization',
+    'Proxy-Authorization',
+];
 async function execCommand(command, options = {}) {
     return new Promise((done, failed) => {
         (0,external_child_process_.exec)(command, options, (err, stdout, stderr) => {
@@ -34305,7 +34338,7 @@ async function execCommand(command, options = {}) {
         });
     });
 }
-function scrubSecrets(input) {
+function scrubSecrets(input, headers) {
     let output = input;
     // Match argocd `--auth-token` flag used when logging in. Used to scrub this
     // from the PR comment body.
@@ -34313,11 +34346,10 @@ function scrubSecrets(input) {
     if (authTokenMatches && authTokenMatches[1]) {
         output = output.replace(new RegExp(authTokenMatches[1], 'g'), '***');
     }
-    // Scrub authorization header
-    const authorizationMatches = input.match(/["']Authorization:(.*?)["']/i);
-    if (authorizationMatches && authorizationMatches[1]) {
-        console.error(authorizationMatches);
-        output = output.replace(authorizationMatches[1], ` ***`);
+    for (const header of SENSITIVE_HEADERS) {
+        if (headers.has(header)) {
+            output = output.replaceAll(`${header}: ${headers.get(header)}`, `${header}: ***`);
+        }
     }
     return output;
 }
@@ -34331,14 +34363,16 @@ function scrubSecrets(input) {
 class ArgoCDServer {
     binaryPath = 'bin/argo';
     extraCommandArgs;
-    uri;
     fqdn;
+    headers;
     token;
+    uri;
     constructor(actionInput) {
-        this.uri = actionInput.argocd.uri;
-        this.fqdn = actionInput.argocd.fqdn;
-        this.token = actionInput.argocd.token;
         this.extraCommandArgs = actionInput.argocd.extraCliArgs;
+        this.fqdn = actionInput.argocd.fqdn;
+        this.headers = actionInput.argocd.headers;
+        this.token = actionInput.argocd.token;
+        this.uri = actionInput.argocd.uri;
     }
     async installArgoCDCommand(version, arch = 'linux') {
         if (version == '') {
@@ -34348,8 +34382,14 @@ class ArgoCDServer {
         (0,external_fs_.chmodSync)(this.binaryPath, '755');
     }
     async command(params) {
-        const cmd = `${this.binaryPath} ${params} --auth-token=${this.token} --server=${this.fqdn} ${this.extraCommandArgs}`;
-        core.debug(`Running: ${scrubSecrets(cmd)}`);
+        let cmd = `${this.binaryPath} ${params} --auth-token=${this.token} --server=${this.fqdn}`;
+        if (this.extraCommandArgs) {
+            cmd += ` ${this.extraCommandArgs}`;
+        }
+        for (const [header, value] of this.headers.entries()) {
+            cmd += ` --header "${header}: ${value}"`;
+        }
+        core.debug(`Running: ${scrubSecrets(cmd, this.headers)}`);
         return execCommand(cmd);
     }
     async getAppLocalDiff(app) {
@@ -34387,7 +34427,10 @@ class ArgoCDServer {
         try {
             const response = await fetch(url, {
                 method: method,
-                headers: { Cookie: `argocd.token=${this.token}` },
+                headers: {
+                    Cookie: `argocd.token=${this.token}`,
+                    ...Object.fromEntries(this.headers),
+                },
             });
             core.debug(`API call response code: ${response.status}`);
             responseJson = await response.json();
@@ -34457,8 +34500,26 @@ class ArgoCDServer {
     }
 }
 
+;// CONCATENATED MODULE: external "node:assert/strict"
+const strict_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:assert/strict");
+var strict_default = /*#__PURE__*/__nccwpck_require__.n(strict_namespaceObject);
 ;// CONCATENATED MODULE: ./src/getActionInput.ts
 
+
+function parseHeaders(input) {
+    const headers = new Map();
+    for (const item of input.split(',')) {
+        let [header, value] = item.split(':');
+        strict_default()(header);
+        strict_default()(value);
+        header = header.trim();
+        value = value.trim();
+        strict_default().match(header, /.+/);
+        strict_default().match(value, /.+/);
+        headers.set(header, value);
+    }
+    return headers;
+}
 function getActionInput() {
     const useTls = core.getInput('argocd-server-tls') === 'true';
     const fqdn = core.getInput('argocd-server-fqdn');
@@ -34470,13 +34531,14 @@ function getActionInput() {
     return {
         arch: process.env.ARCH || 'linux',
         argocd: {
+            cliVersion: core.getInput('argocd-version'),
             excludePaths: core.getInput('argocd-exclude-paths').split(','),
             extraCliArgs,
             fqdn,
+            headers: parseHeaders(core.getInput('argocd-headers')),
             protocol,
             token: core.getInput('argocd-token'),
             uri: `${protocol}://${fqdn}`,
-            cliVersion: core.getInput('argocd-version'),
         },
         githubToken: core.getInput('github-token'),
         timezone: core.getInput('timezone'),
@@ -34571,7 +34633,7 @@ _Updated at ${new Date().toLocaleString('en-CA', { timeZone: actionInput.timezon
 | ✅     | The app is synced in ArgoCD, and diffs you see are solely from this PR. |
 | ⚠️      | The app is out-of-sync in ArgoCD, and the diffs you see include those changes plus any from this PR. |
 | 🛑     | There was an error generating the ArgoCD diffs due to changes in this PR. |
-`);
+`, actionInput.argocd.headers);
     const commentsResponse = await octokit.rest.issues.listComments({
         issue_number: github.context.issue.number,
         owner,

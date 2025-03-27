@@ -1,3 +1,9 @@
+## [0.5.0](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.4.3...0.5.0) (2025-03-27)
+
+### Features
+
+* allow custom headers ([#143](https://github.com/argocd-diff-action/argocd-diff-action/issues/143)) ([19115a2](https://github.com/argocd-diff-action/argocd-diff-action/commit/19115a2bf26ae455583f06a715f67d8b7261f3b7))
+
 ## [0.4.3](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.4.2...0.4.3) (2025-03-26)
 
 ### Bug Fixes
