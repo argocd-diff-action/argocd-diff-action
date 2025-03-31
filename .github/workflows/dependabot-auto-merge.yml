@@ -3,7 +3,7 @@ name: Dependabot Auto-Merge
 on:
   pull_request:
     paths:
-      - package-lock.json
+      - pnpm-lock.yaml
 
 permissions:
   contents: write
