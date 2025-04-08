@@ -16,7 +16,7 @@ jobs:
       !contains(github.event.head_commit.message, '[skip ci]') &&
       !contains(github.event.head_commit.message, '[skip release]')
     steps:
-      - uses: actions/create-github-app-token@v1
+      - uses: actions/create-github-app-token@v2
         id: app-token
         with:
           app-id: ${{ vars.RELEASE_BOT_APP_ID }}
