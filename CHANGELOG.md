@@ -1,3 +1,10 @@
+## [0.5.2](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.5.1...0.5.2) (2025-07-16)
+
+### Build & Dependencies
+
+* **deps-dev:** bump the npm-development group across 1 directory with 10 updates ([#156](https://github.com/argocd-diff-action/argocd-diff-action/issues/156)) ([785a23f](https://github.com/argocd-diff-action/argocd-diff-action/commit/785a23f602c77afd5d1940c36913f2dffc55a1e0))
+* **deps:** bump @actions/github from 6.0.0 to 6.0.1 in the npm-production group ([#152](https://github.com/argocd-diff-action/argocd-diff-action/issues/152)) ([78f13fb](https://github.com/argocd-diff-action/argocd-diff-action/commit/78f13fb9c82fb5978d6bc9b6ef20b6973ea249b8))
+
 ## [0.5.1](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.5.0...0.5.1) (2025-04-08)
 
 ### Build & Dependencies
