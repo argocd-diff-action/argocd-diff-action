@@ -1,3 +1,17 @@
+## [0.5.3](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.5.2...0.5.3) (2025-07-21)
+
+### Build & Dependencies
+
+* **deps-dev:** bump conventional-changelog-conventionalcommits from 8.0.0 to 9.1.0 ([#159](https://github.com/argocd-diff-action/argocd-diff-action/issues/159)) ([0078f46](https://github.com/argocd-diff-action/argocd-diff-action/commit/0078f46ccca748d4a479bea5487ddf95b13f2146))
+* **deps-dev:** bump jest-circus from 29.7.0 to 30.0.4 ([#160](https://github.com/argocd-diff-action/argocd-diff-action/issues/160)) ([96b588b](https://github.com/argocd-diff-action/argocd-diff-action/commit/96b588beb86782efb878f6d2fbb412225211e6e8))
+* **deps-dev:** bump sinon from 19.0.4 to 21.0.0 ([#158](https://github.com/argocd-diff-action/argocd-diff-action/issues/158)) ([8a4c9dd](https://github.com/argocd-diff-action/argocd-diff-action/commit/8a4c9dd2f0b13b90712e923bd357c6991906bcd1))
+* **deps-dev:** bump the npm-development group with 6 updates ([#157](https://github.com/argocd-diff-action/argocd-diff-action/issues/157)) ([b3ad399](https://github.com/argocd-diff-action/argocd-diff-action/commit/b3ad39943067c077724b3f9f5a37f43a1699085f))
+* update dev dependencies ([b19ab5f](https://github.com/argocd-diff-action/argocd-diff-action/commit/b19ab5f68c95f18ee472aef59e2a1c2999a9c605))
+
+### Tests
+
+* fix difference in execCommand failure on osx ([d476339](https://github.com/argocd-diff-action/argocd-diff-action/commit/d476339f788ad083a48270bcc3de5cd36b81b111))
+
 ## [0.5.2](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.5.1...0.5.2) (2025-07-16)
 
 ### Build & Dependencies
