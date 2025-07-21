@@ -105,7 +105,7 @@ describe('ArgoCDServer tests', function () {
         await expect(argocdServer().getAppCollectionLocalDiffs(appCollection())).resolves.toStrictEqual(
             diffs,
         );
-        expect(mockedExecCommand).toBeCalledTimes(appCollection().apps.length);
+        expect(mockedExecCommand).toHaveBeenCalledTimes(appCollection().apps.length);
         expect(mockedExecCommand).toHaveBeenCalledWith(
             `bin/argo app diff --local-repo-root=${process.cwd()} ${appOne().metadata.name} --local=${
                 appOne().spec.source?.path
@@ -124,7 +124,7 @@ describe('ArgoCDServer tests', function () {
         await expect(
             argocdServer().getAppCollectionRevisionDiffs(appCollection(), appTargetRevisions),
         ).resolves.toStrictEqual(diffs);
-        expect(mockedExecCommand).toBeCalledTimes(1);
+        expect(mockedExecCommand).toHaveBeenCalledTimes(1);
         expect(mockedExecCommand).toHaveBeenCalledWith(
             `bin/argo app diff --local-repo-root=${process.cwd()} ${
                 appThree().metadata.name
