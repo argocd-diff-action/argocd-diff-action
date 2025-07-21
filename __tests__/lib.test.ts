@@ -1,5 +1,6 @@
-import { expect, test } from '@jest/globals';
+import { platform } from 'os';
 
+import { expect, test } from '@jest/globals';
 import { execCommand, type ExecResult, scrubSecrets } from '../src/lib.js';
 
 test('scrubSecrets replaces auth-token with ***', () => {
@@ -48,8 +49,12 @@ test('execCommand returns ExecResult', async () => {
 });
 
 test('execCommand returns an err on failure', async () => {
+    const expectedError = (platform() === 'darwin')
+        ? '/bin/sh: badBinary: command not found\n'
+        : '/bin/sh: 1: badBinary: not found\n';
+
     await expect(execCommand('badBinary')).rejects.toMatchObject({
         stdout: '',
-        stderr: '/bin/sh: 1: badBinary: not found\n',
+        stderr: expectedError,
     });
 });
