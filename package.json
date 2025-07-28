@@ -40,7 +40,7 @@
     "@jest/globals": "^30.0.5",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
-    "@stylistic/eslint-plugin": "^4.2.0",
+    "@stylistic/eslint-plugin": "^5.2.2",
     "@types/jest": "^30.0.0",
     "@types/node": "^20.19.9",
     "@types/sinon": "^17.0.4",
