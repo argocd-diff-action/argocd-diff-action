@@ -28,6 +28,10 @@ inputs:
     description: '`argocd` command version to install. Defaults to the server version.'
     default: ''
     required: false
+  target-revisions:
+    description: 'A comma-separated list of branches to consider "HEAD"'
+    default: 'master,main,HEAD'
+    required: false
   github-token:
     description: 'Github Token'
     required: true

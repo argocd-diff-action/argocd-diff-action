@@ -31,7 +31,7 @@ async function run(): Promise<void> {
     // comparing against (in most cases).
     const appLocalCollection = appAllCollection
         .filterByRepo(`${github.context.repo.owner}/${github.context.repo.repo}`)
-        .filterByTargetRevision()
+        .filterByTargetRevision(actionInput.argocd.targetRevisions)
         .filterByExcludedPath(actionInput.argocd.excludePaths);
 
     core.info(`Found apps: ${appLocalCollection.apps.map(a => a.metadata.name).join(', ')}`);

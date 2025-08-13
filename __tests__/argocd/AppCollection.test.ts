@@ -10,8 +10,14 @@ test('filterByRepo removes apps from other repos', () => {
 });
 
 test('filterByTargetRevision removes apps not targeting the trunk', () => {
-    expect(appCollection().filterByTargetRevision()).toStrictEqual(
+    expect(appCollection().filterByTargetRevision(['master', 'main', 'HEAD'])).toStrictEqual(
         new AppCollection([appOne(), appTwo()]),
+    );
+});
+
+test('filterByTargetRevision with custom revisions', () => {
+    expect(appCollection().filterByTargetRevision(['develop'])).toStrictEqual(
+        new AppCollection([]),
     );
 });
 
@@ -38,7 +44,7 @@ test('empty app collection', () => {
     expect(appCollection.getAppByName('non-existent-app-name')).toStrictEqual(undefined);
     expect(appCollection.filterByExcludedPath([])).toStrictEqual(appCollection);
     expect(appCollection.filterByRepo('non-existent-repo')).toStrictEqual(appCollection);
-    expect(appCollection.filterByTargetRevision()).toStrictEqual(appCollection);
+    expect(appCollection.filterByTargetRevision([])).toStrictEqual(appCollection);
 });
 
 function appOne(): App {

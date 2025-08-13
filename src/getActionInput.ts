@@ -12,6 +12,7 @@ export interface ActionInput {
         protocol: string;
         token: string;
         uri: string;
+        targetRevisions: string[];
     };
     githubToken: string;
     timezone: string;
@@ -59,6 +60,10 @@ export default function getActionInput(): ActionInput {
             protocol,
             token: core.getInput('argocd-token'),
             uri: `${protocol}://${fqdn}`,
+            targetRevisions: core
+                .getInput('target-revisions')
+                .split(',')
+                .map((r) => r.trim()),
         },
         githubToken: core.getInput('github-token'),
         timezone: core.getInput('timezone'),
