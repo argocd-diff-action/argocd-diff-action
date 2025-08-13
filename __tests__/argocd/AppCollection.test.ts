@@ -17,7 +17,7 @@ test('filterByTargetRevision removes apps not targeting the trunk', () => {
 
 test('filterByTargetRevision with custom revisions', () => {
     expect(appCollection().filterByTargetRevision(['develop'])).toStrictEqual(
-        new AppCollection([]),
+        new AppCollection([appThree()]),
     );
 });
 
@@ -92,5 +92,27 @@ function appTwo(): App {
 }
 
 function appCollection(): AppCollection {
-    return new AppCollection([appOne(), appTwo()]);
+    return new AppCollection([appOne(), appTwo(), appThree()]);
+}
+
+function appThree(): App {
+    return {
+        metadata: {
+            name: 'app-three',
+        },
+        spec: {
+            source: {
+                repoURL: 'https://github.com/argocd-diff-action/app-three',
+                path: 'deploy/app-three',
+                targetRevision: 'develop',
+                helm: {},
+                kustomize: {},
+            },
+        },
+        status: {
+            sync: {
+                status: 'Synced',
+            },
+        },
+    };
 }
