@@ -35,5 +35,10 @@ jobs:
         run: |
           pnpm i --frozen-lockfile
 
-      - name: Run Tests and Check Coverage
+      - name: Run tests
+        if: ${{ always() }}
         uses: ArtiomTr/jest-coverage-report-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          package-manager: pnpm
+          skip-step: install

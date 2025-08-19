@@ -36,7 +36,7 @@ export class AppCollection {
         );
     }
 
-    filterByTargetRevision(targetRevisions: string[] = ['master', 'main', 'HEAD']): AppCollection {
+    filterByTargetRevision(targetRevisions: string[]): AppCollection {
         if (this.apps.length === 0) {
             return this;
         }

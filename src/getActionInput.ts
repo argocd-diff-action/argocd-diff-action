@@ -10,6 +10,7 @@ export interface ActionInput {
         fqdn: string;
         headers: Map<string, string>;
         protocol: string;
+        targetRevisions: string[];
         token: string;
         uri: string;
     };
@@ -52,11 +53,16 @@ export default function getActionInput(): ActionInput {
         arch: process.env.ARCH || 'linux',
         argocd: {
             cliVersion: core.getInput('argocd-version'),
-            excludePaths: core.getInput('argocd-exclude-paths').split(','),
+            excludePaths: core.getInput('argocd-exclude-paths')
+                .split(',')
+                .map(path => path.trim()),
             extraCliArgs,
             fqdn,
             headers: parseHeaders(core.getInput('argocd-headers')),
             protocol,
+            targetRevisions: core.getInput('target-revisions')
+                .split(',')
+                .map(revision => revision.trim()),
             token: core.getInput('argocd-token'),
             uri: `${protocol}://${fqdn}`,
         },
