@@ -34233,35 +34233,6 @@ module.exports = parseParams
 /******/ }
 /******/ 
 /************************************************************************/
-/******/ /* webpack/runtime/compat get default export */
-/******/ (() => {
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__nccwpck_require__.n = (module) => {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			() => (module['default']) :
-/******/ 			() => (module);
-/******/ 		__nccwpck_require__.d(getter, { a: getter });
-/******/ 		return getter;
-/******/ 	};
-/******/ })();
-/******/ 
-/******/ /* webpack/runtime/define property getters */
-/******/ (() => {
-/******/ 	// define getter functions for harmony exports
-/******/ 	__nccwpck_require__.d = (exports, definition) => {
-/******/ 		for(var key in definition) {
-/******/ 			if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
-/******/ 				Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 			}
-/******/ 		}
-/******/ 	};
-/******/ })();
-/******/ 
-/******/ /* webpack/runtime/hasOwnProperty shorthand */
-/******/ (() => {
-/******/ 	__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ })();
-/******/ 
 /******/ /* webpack/runtime/compat */
 /******/ 
 /******/ if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = new URL('.', import.meta.url).pathname.slice(import.meta.url.match(/^file:\/\/\/\w:/) ? 1 : 0, -1) + "/";
@@ -34508,22 +34479,21 @@ class ArgoCDServer {
     }
 }
 
-;// CONCATENATED MODULE: external "node:assert/strict"
-const strict_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:assert/strict");
-var strict_default = /*#__PURE__*/__nccwpck_require__.n(strict_namespaceObject);
 ;// CONCATENATED MODULE: ./src/getActionInput.ts
-
 
 function parseHeaders(input) {
     const headers = new Map();
     for (const item of input.split(',')) {
-        let [header, value] = item.split(':');
-        strict_default()(header);
-        strict_default()(value);
-        header = header.trim();
-        value = value.trim();
-        strict_default().match(header, /.+/);
-        strict_default().match(value, /.+/);
+        if (item.trim() === '') {
+            continue;
+        }
+        let [header, value] = item.split(':').map(s => s.trim());
+        if (!header || header === '') {
+            throw new Error(`Header name cannot be empty: ${item}`);
+        }
+        if (!value || value === '') {
+            throw new Error(`Header value cannot be empty: ${item}`);
+        }
         headers.set(header, value);
     }
     return headers;

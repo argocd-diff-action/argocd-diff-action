@@ -1,3 +1,9 @@
+## [0.6.2](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.1...0.6.2) (2025-08-19)
+
+### Bug Fixes
+
+* allow headers to be an empty string ([#172](https://github.com/argocd-diff-action/argocd-diff-action/issues/172)) ([8b5702c](https://github.com/argocd-diff-action/argocd-diff-action/commit/8b5702c12c476d745ab56619c780d330bc8ab2d0)), closes [#166](https://github.com/argocd-diff-action/argocd-diff-action/issues/166)
+
 ## [0.6.1](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.0...0.6.1) (2025-08-19)
 
 ### Build & Dependencies
