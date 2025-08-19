@@ -14,6 +14,7 @@ export class ArgoCDServer {
     extraCommandArgs: string;
     fqdn: string;
     headers: Map<string, string>;
+    protocol: string;
     token: string;
     uri: string;
 
@@ -21,6 +22,7 @@ export class ArgoCDServer {
         this.extraCommandArgs = actionInput.argocd.extraCliArgs;
         this.fqdn = actionInput.argocd.fqdn;
         this.headers = actionInput.argocd.headers;
+        this.protocol = actionInput.argocd.protocol;
         this.token = actionInput.argocd.token;
         this.uri = actionInput.argocd.uri;
     }
@@ -86,7 +88,7 @@ export class ArgoCDServer {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async api(endpoint: string, params: string[] = [], method = 'GET'): Promise<any> {
-        const url = `https://${this.fqdn}/api/${endpoint}?${params.join('&')}}`;
+        const url = `${this.uri}/api/${endpoint}?${params.join('&')}`;
         core.debug(`Making API call to: '${url}'`);
 
         // response.json() returns `any`.
@@ -106,7 +108,7 @@ export class ArgoCDServer {
         }
         catch (err) {
             if (err instanceof Error) {
-                core.error(`Failed to fetch ${endpoint} from ${this.fqdn}.`);
+                core.error(`Failed to fetch ${endpoint} from ${this.uri}.`);
                 core.error(err.message);
             }
             throw err;
