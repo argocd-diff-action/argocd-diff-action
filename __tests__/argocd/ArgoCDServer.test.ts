@@ -43,6 +43,26 @@ describe('ArgoCDServer tests', function () {
         expect(argocdServer().fqdn).toBe('argocd.example');
     });
 
+    test('ArgoCDServer uses http when argocd-server-tls is false', async () => {
+        fetchMock.get('http://argocd.example/api/v1/applications?%257D', 200, '{}');
+        fetchMock.get('http://argocd.example/api/v1/applications', 200, '{}');
+
+        // mock response from fetch used in getServerVersion.
+        fetchMock.anyOnce(
+            JSON.stringify({
+                Version: 'v2.4.0+91aefab',
+            }),
+        );
+        mockedDownloadTool.mockReturnValueOnce(Promise.resolve('/path/to/tool'));
+
+        await argocdServer({ protocol: 'http', uri: 'http://argocd.example', fqdn: 'argocd.example'}).installArgoCDCommand('');
+
+        expect(mockedDownloadTool).toHaveBeenCalledWith(
+            'https://github.com/argoproj/argo-cd/releases/download/v2.4.0/argocd-linux-amd64',
+            'bin/argo',
+        );
+    });
+
     test('ArgoCDServer installArgoCDCommand defaults to server version & calls downloadTool', async () => {
         fetchMock.get('https://argocd.example/api/v1/applications?%257D', 200, '{}');
         fetchMock.get('https://argocd.example/api/v1/applications', 200, '{}');
@@ -203,7 +223,11 @@ function appCollection(): AppCollection {
     return new AppCollection([appOne(), appTwo(), appThree()]);
 }
 
-function argocdServer(): ArgoCDServer {
+function argocdServer(overrides?: {
+    fqdn?: string;
+    protocol?: 'http' | 'https';
+    uri?: string;
+}): ArgoCDServer {
     const actionInput: ActionInput = {
         arch: 'linux',
         argocd: {
@@ -219,10 +243,12 @@ function argocdServer(): ArgoCDServer {
             token: 'fakeArgoCdToken',
             uri: 'https://argocd.example',
             targetRevisions: ['master', 'main', 'HEAD'],
+            ...overrides,
         },
         githubToken: 'fakeGithubToken',
         timezone: 'America/Toronto',
     };
+
     return new ArgoCDServer(actionInput);
 }
 
