@@ -1,7 +1,7 @@
-import { expect, test } from '@jest/globals';
+import {expect, test} from '@jest/globals';
 
-import { type App } from '../../src/argocd/App.js';
-import { AppCollection } from '../../src/argocd/AppCollection.js';
+import {type App} from '../../src/argocd/App.js';
+import {AppCollection} from '../../src/argocd/AppCollection.js';
 
 test('filterByRepo removes apps from other repos', () => {
     expect(appCollection().filterByRepo('argocd-diff-action/app-one')).toStrictEqual(
@@ -10,8 +10,14 @@ test('filterByRepo removes apps from other repos', () => {
 });
 
 test('filterByTargetRevision removes apps not targeting the trunk', () => {
-    expect(appCollection().filterByTargetRevision()).toStrictEqual(
+    expect(appCollection().filterByTargetRevision(['master', 'main', 'HEAD'])).toStrictEqual(
         new AppCollection([appOne(), appTwo()]),
+    );
+});
+
+test('filterByTargetRevision with custom branch name', () => {
+    expect(appCollection().filterByTargetRevision(['feature-abc'])).toStrictEqual(
+        new AppCollection([appThree()]),
     );
 });
 
@@ -38,7 +44,7 @@ test('empty app collection', () => {
     expect(appCollection.getAppByName('non-existent-app-name')).toStrictEqual(undefined);
     expect(appCollection.filterByExcludedPath([])).toStrictEqual(appCollection);
     expect(appCollection.filterByRepo('non-existent-repo')).toStrictEqual(appCollection);
-    expect(appCollection.filterByTargetRevision()).toStrictEqual(appCollection);
+    expect(appCollection.filterByTargetRevision([])).toStrictEqual(appCollection);
 });
 
 function appOne(): App {
@@ -85,6 +91,28 @@ function appTwo(): App {
     };
 }
 
+function appThree(): App {
+    return {
+        metadata: {
+            name: 'app-three',
+        },
+        spec: {
+            source: {
+                repoURL: 'https://github.com/argocd-diff-action/app-three',
+                path: 'deploy/app-three',
+                targetRevision: 'feature-abc',
+                helm: {},
+                kustomize: {},
+            },
+        },
+        status: {
+            sync: {
+                status: 'Synced',
+            },
+        },
+    };
+}
+
 function appCollection(): AppCollection {
-    return new AppCollection([appOne(), appTwo()]);
+    return new AppCollection([appOne(), appTwo(), appThree()]);
 }

@@ -31,6 +31,10 @@ inputs:
   github-token:
     description: 'Github Token'
     required: true
+  target-revisions:
+    description: 'A comma-separated list of branches to consider "HEAD"'
+    default: 'master,main,HEAD'
+    required: false
   timezone:
     description: 'Timezone string used for dates in the github comment.'
     default: 'America/Toronto'

@@ -218,6 +218,7 @@ function argocdServer(): ArgoCDServer {
             protocol: 'https',
             token: 'fakeArgoCdToken',
             uri: 'https://argocd.example',
+            targetRevisions: ['master', 'main', 'HEAD'],
         },
         githubToken: 'fakeGithubToken',
         timezone: 'America/Toronto',
