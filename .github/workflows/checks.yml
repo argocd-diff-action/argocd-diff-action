@@ -36,12 +36,9 @@ jobs:
           pnpm i --frozen-lockfile
 
       - name: Run tests
-        run: |
-          pnpm test
-
-      - name: Add coverage to PR
         if: ${{ always() }}
         uses: ArtiomTr/jest-coverage-report-action@v2
         with:
-          coverage-file: "./coverage/coverage-final.json"
-
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          package-manager: pnpm
+          skip-step: install
