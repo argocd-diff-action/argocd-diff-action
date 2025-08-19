@@ -1,3 +1,9 @@
+## [0.6.3](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.2...0.6.3) (2025-08-19)
+
+### Bug Fixes
+
+* respect argocd-server-tls flag when making fetch calls ([#173](https://github.com/argocd-diff-action/argocd-diff-action/issues/173)) ([9e98125](https://github.com/argocd-diff-action/argocd-diff-action/commit/9e981252c92c753d5846d2b90434d6a43e4bd278)), closes [#149](https://github.com/argocd-diff-action/argocd-diff-action/issues/149)
+
 ## [0.6.2](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.1...0.6.2) (2025-08-19)
 
 ### Bug Fixes

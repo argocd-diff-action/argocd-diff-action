@@ -34344,12 +34344,14 @@ class ArgoCDServer {
     extraCommandArgs;
     fqdn;
     headers;
+    protocol;
     token;
     uri;
     constructor(actionInput) {
         this.extraCommandArgs = actionInput.argocd.extraCliArgs;
         this.fqdn = actionInput.argocd.fqdn;
         this.headers = actionInput.argocd.headers;
+        this.protocol = actionInput.argocd.protocol;
         this.token = actionInput.argocd.token;
         this.uri = actionInput.argocd.uri;
     }
@@ -34398,7 +34400,7 @@ class ArgoCDServer {
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async api(endpoint, params = [], method = 'GET') {
-        const url = `https://${this.fqdn}/api/${endpoint}?${params.join('&')}}`;
+        const url = `${this.uri}/api/${endpoint}?${params.join('&')}`;
         core.debug(`Making API call to: '${url}'`);
         // response.json() returns `any`.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34416,7 +34418,7 @@ class ArgoCDServer {
         }
         catch (err) {
             if (err instanceof Error) {
-                core.error(`Failed to fetch ${endpoint} from ${this.fqdn}.`);
+                core.error(`Failed to fetch ${endpoint} from ${this.uri}.`);
                 core.error(err.message);
             }
             throw err;
