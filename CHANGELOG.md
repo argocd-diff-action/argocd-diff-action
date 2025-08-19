@@ -1,3 +1,9 @@
+## [0.6.0](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.5.4...0.6.0) (2025-08-19)
+
+### Features
+
+* allow users to specify targetRevisions ([#171](https://github.com/argocd-diff-action/argocd-diff-action/issues/171)) ([9cebb3f](https://github.com/argocd-diff-action/argocd-diff-action/commit/9cebb3f5622bf846da2aebc5c7a547dcc081ee9a)), closes [#168](https://github.com/argocd-diff-action/argocd-diff-action/issues/168)
+
 ## [0.5.4](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.5.3...0.5.4) (2025-08-19)
 
 ### Build & Dependencies

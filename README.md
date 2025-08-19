@@ -56,6 +56,7 @@ jobs:
 | `argocd-token` | true |  | ArgoCD token for a local or project-scoped user https://argoproj.github.io/argo-cd/operator-manual/user-management/#local-usersaccounts-v15 |
 | `argocd-version` | false |  | `argocd` command version to install. Defaults to the server version. |
 | `github-token` | true |  | Github Token |
+| `target-revisions` | false | master,main,HEAD | A comma-separated list of branches to consider "HEAD" |
 | `timezone` | false | America/Toronto | Timezone string used for dates in the github comment. |
 
 <!--(inputs-end)-->
