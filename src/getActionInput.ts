@@ -18,20 +18,23 @@ export interface ActionInput {
     timezone: string;
 }
 
-function parseHeaders(input: string): Map<string, string> {
+export function parseHeaders(input: string): Map<string, string> {
     const headers = new Map<string, string>();
 
     for (const item of input.split(',')) {
-        let [header, value] = item.split(':');
+        if (item.trim() === '') {
+            continue;
+        }
 
-        assert(header);
-        assert(value);
+        let [header, value] = item.split(':').map(s => s.trim());
 
-        header = header.trim();
-        value = value.trim();
+        if (!header || header === '') {
+            throw new Error(`Header name cannot be empty: ${item}`);
+        }
 
-        assert.match(header, /.+/);
-        assert.match(value, /.+/);
+        if (!value || value === '') {
+            throw new Error(`Header value cannot be empty: ${item}`);
+        }
 
         headers.set(header, value);
     }
