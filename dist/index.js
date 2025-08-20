@@ -34333,7 +34333,10 @@ function scrubSecrets(input, headers) {
     return output;
 }
 
+;// CONCATENATED MODULE: external "node:url"
+const external_node_url_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:url");
 ;// CONCATENATED MODULE: ./src/argocd/ArgoCDServer.ts
+
 
 
 
@@ -34399,11 +34402,17 @@ class ArgoCDServer {
         }
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async api(endpoint, params = [], method = 'GET') {
-        const url = `${this.uri}/api/${endpoint}?${params.join('&')}`;
+    async api(endpoint, params = {}, method = 'GET') {
+        const url = new external_node_url_namespaceObject.URL(`${this.uri}/api/${endpoint}`);
+        for (let paramsKey in params) {
+            if (params[paramsKey]) {
+                url.searchParams.append(paramsKey, params[paramsKey]);
+            }
+        }
         core.debug(`Making API call to: '${url}'`);
         // response.json() returns `any`.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let responseText;
         let responseJson;
         try {
             const response = await fetch(url, {
@@ -34414,11 +34423,16 @@ class ArgoCDServer {
                 },
             });
             core.debug(`API call response code: ${response.status}`);
-            responseJson = await response.json();
+            responseText = await response.text();
+            if (!response.ok) {
+                throw new Error(`API call failed with status ${response.status}.`);
+            }
+            responseJson = JSON.parse(responseText);
         }
         catch (err) {
             if (err instanceof Error) {
                 core.error(`Failed to fetch ${endpoint} from ${this.uri}.`);
+                core.error(`Response Text: ${responseText}`);
                 core.error(err.message);
             }
             throw err;
@@ -34426,6 +34440,7 @@ class ArgoCDServer {
         if (responseJson.error) {
             core.error('Error returned by API');
             core.error(responseJson);
+            throw new Error(`Error returned by ArgoCD API: ${JSON.stringify(responseJson)}`);
         }
         return responseJson;
     }

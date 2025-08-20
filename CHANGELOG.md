@@ -1,3 +1,9 @@
+## [0.6.4](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.3...0.6.4) (2025-08-20)
+
+### Bug Fixes
+
+* throw when api returns errors ([#174](https://github.com/argocd-diff-action/argocd-diff-action/issues/174)) ([241a5ee](https://github.com/argocd-diff-action/argocd-diff-action/commit/241a5eeb40f4d6cd36e09d2b41a832449dca084f)), closes [#115](https://github.com/argocd-diff-action/argocd-diff-action/issues/115)
+
 ## [0.6.3](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.2...0.6.3) (2025-08-19)
 
 ### Bug Fixes

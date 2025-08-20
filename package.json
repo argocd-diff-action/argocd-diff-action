@@ -1,6 +1,6 @@
 {
   "name": "argocd-diff-action",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "private": true,
   "description": "ArgoCD Diff GitHub Action",
   "main": "src/main.ts",
