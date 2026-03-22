@@ -34684,7 +34684,7 @@ ${diff}
 ## ArgoCD Diff ${actionInput.argocd.fqdn} for commit [\`${shortCommitSha}\`](${commitLink})
 `;
     const output = scrubSecrets(`${header}
-_Updated at ${new Date().toLocaleString('en-CA', { timeZone: 'America/Toronto' })} PT_
+_Updated at ${new Date().toLocaleString('en-CA', { timeZone: 'Asia/Kolkata' })} IST_
   ${diffOutput.join('\n')}
 
 | Legend | Status |
