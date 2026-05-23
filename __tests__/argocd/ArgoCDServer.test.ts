@@ -44,19 +44,19 @@ describe('ArgoCDServer tests', function () {
     });
 
     test('ArgoCDServer throws on 401', async () => {
-        fetchMock.get('https://argocd.example/api/v1/applications', {status: 401, body: '{"error":"no session information","code":16,"message":"no session information"}'});
+        fetchMock.get('https://argocd.example/api/v1/applications', { status: 401, body: '{"error":"no session information","code":16,"message":"no session information"}' });
 
         expect(argocdServer().getAppCollection()).rejects.toThrow();
     });
 
     test('ArgoCDServer throws on 500', async () => {
-        fetchMock.get('https://argocd.example/api/v1/applications', {status: 500, body: ''});
+        fetchMock.get('https://argocd.example/api/v1/applications', { status: 500, body: '' });
 
         expect(argocdServer().getAppCollection()).rejects.toThrow();
     });
 
     test('ArgoCDServer uses http when argocd-server-tls is false', async () => {
-        fetchMock.get('http://argocd.example/api/v1/applications', { response: { status: 200, body: '{}' }});
+        fetchMock.get('http://argocd.example/api/v1/applications', { response: { status: 200, body: '{}' } });
 
         // mock response from fetch used in getServerVersion.
         fetchMock.anyOnce(
@@ -66,7 +66,7 @@ describe('ArgoCDServer tests', function () {
         );
         mockedDownloadTool.mockReturnValueOnce(Promise.resolve('/path/to/tool'));
 
-        await argocdServer({ protocol: 'http', uri: 'http://argocd.example', fqdn: 'argocd.example'}).installArgoCDCommand('');
+        await argocdServer({ protocol: 'http', uri: 'http://argocd.example', fqdn: 'argocd.example' }).installArgoCDCommand('');
 
         expect(mockedDownloadTool).toHaveBeenCalledWith(
             'https://github.com/argoproj/argo-cd/releases/download/v2.4.0/argocd-linux-amd64',
@@ -75,7 +75,7 @@ describe('ArgoCDServer tests', function () {
     });
 
     test('ArgoCDServer installArgoCDCommand defaults to server version & calls downloadTool', async () => {
-        fetchMock.get('https://argocd.example/api/v1/applications', { response: { status: 200, body: '{}' }});
+        fetchMock.get('https://argocd.example/api/v1/applications', { response: { status: 200, body: '{}' } });
 
         // mock response from fetch used in getServerVersion.
         fetchMock.anyOnce(

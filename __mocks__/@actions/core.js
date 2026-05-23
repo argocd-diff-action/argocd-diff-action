@@ -10,10 +10,10 @@
 // https://jestjs.io/docs/manual-mocks#mocking-node-modules), so no explicit
 // jest.mock('@actions/core') call is required.
 module.exports = {
-  debug: jest.fn(),
-  error: jest.fn(),
-  warning: jest.fn(),
-  info: jest.fn(),
-  setFailed: jest.fn(),
-  getInput: jest.fn(),
+    debug: jest.fn(),
+    error: jest.fn(),
+    warning: jest.fn(),
+    info: jest.fn(),
+    setFailed: jest.fn(),
+    getInput: jest.fn(),
 };

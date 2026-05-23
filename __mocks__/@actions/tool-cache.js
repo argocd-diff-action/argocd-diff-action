@@ -8,5 +8,5 @@
 // Jest applies manual mocks for node modules automatically (see
 // https://jestjs.io/docs/manual-mocks#mocking-node-modules).
 module.exports = {
-  downloadTool: jest.fn(),
+    downloadTool: jest.fn(),
 };
