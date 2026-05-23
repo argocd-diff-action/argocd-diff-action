@@ -1,3 +1,9 @@
+## [0.6.6](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.5...0.6.6) (2026-05-23)
+
+### Build & Dependencies
+
+* **deps:** bump @actions/github from 6.0.1 to 9.0.0 ([#201](https://github.com/argocd-diff-action/argocd-diff-action/issues/201)) ([4de098b](https://github.com/argocd-diff-action/argocd-diff-action/commit/4de098bae53d94211839fee74a2d9fe097c31230))
+
 ## [0.6.5](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.4...0.6.5) (2026-05-23)
 
 ### Build & Dependencies
