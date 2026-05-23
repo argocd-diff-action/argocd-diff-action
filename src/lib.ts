@@ -14,10 +14,10 @@ export interface ExecResult {
 
 export async function execCommand(command: string, options: ExecOptions = {}): Promise<ExecResult> {
     return new Promise<ExecResult>((done, failed) => {
-        exec(command, options, (err: ExecException | null, stdout: string, stderr: string): void => {
+        exec(command, options, (err: ExecException | null, stdout: string | Buffer, stderr: string | Buffer): void => {
             const res: ExecResult = {
-                stdout,
-                stderr,
+                stdout: stdout.toString(),
+                stderr: stderr.toString(),
             };
             if (err) {
                 res.err = err;
