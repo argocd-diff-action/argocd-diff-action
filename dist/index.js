@@ -34305,8 +34305,8 @@ async function execCommand(command, options = {}) {
     return new Promise((done, failed) => {
         (0,external_child_process_.exec)(command, options, (err, stdout, stderr) => {
             const res = {
-                stdout,
-                stderr,
+                stdout: stdout.toString(),
+                stderr: stderr.toString(),
             };
             if (err) {
                 res.err = err;

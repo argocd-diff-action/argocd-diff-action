@@ -1,3 +1,13 @@
+## [0.6.5](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.4...0.6.5) (2026-05-23)
+
+### Build & Dependencies
+
+* **deps:** bump cycjimmy/semantic-release-action from 4 to 5 ([#179](https://github.com/argocd-diff-action/argocd-diff-action/issues/179)) ([da52736](https://github.com/argocd-diff-action/argocd-diff-action/commit/da52736eb34fa6c720c146b31abb924e94ee6750)), closes [#255](https://github.com/argocd-diff-action/argocd-diff-action/issues/255) [#253](https://github.com/argocd-diff-action/argocd-diff-action/issues/253) [#251](https://github.com/argocd-diff-action/argocd-diff-action/issues/251)
+
+### Tests
+
+* support ESM-only [@actions](https://github.com/actions) deps and stricter @types/node in jest ([#205](https://github.com/argocd-diff-action/argocd-diff-action/issues/205)) ([477b486](https://github.com/argocd-diff-action/argocd-diff-action/commit/477b4862b1d992d643708cb6286fee4a7cdb7ac8)), closes [#200](https://github.com/argocd-diff-action/argocd-diff-action/issues/200) [#199](https://github.com/argocd-diff-action/argocd-diff-action/issues/199) [#202](https://github.com/argocd-diff-action/argocd-diff-action/issues/202)
+
 ## [0.6.4](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.3...0.6.4) (2025-08-20)
 
 ### Bug Fixes
