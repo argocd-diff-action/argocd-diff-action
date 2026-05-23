@@ -1,3 +1,10 @@
+## [0.6.11](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.10...0.6.11) (2026-05-23)
+
+### Build & Dependencies
+
+* **deps-dev:** bump the npm-development group across 1 directory with 13 updates ([#206](https://github.com/argocd-diff-action/argocd-diff-action/issues/206)) ([6838774](https://github.com/argocd-diff-action/argocd-diff-action/commit/683877418832689f8a538f51d1f5828a104ea5af))
+* **deps:** bump cycjimmy/semantic-release-action from 5 to 6 ([#190](https://github.com/argocd-diff-action/argocd-diff-action/issues/190)) ([5fdf598](https://github.com/argocd-diff-action/argocd-diff-action/commit/5fdf598b43675cd8e33403c29054c9503af32c58))
+
 ## [0.6.10](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.9...0.6.10) (2026-05-23)
 
 ### Build & Dependencies
