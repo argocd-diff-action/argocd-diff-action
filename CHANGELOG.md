@@ -1,3 +1,9 @@
+## [0.6.7](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.6...0.6.7) (2026-05-23)
+
+### Build & Dependencies
+
+* **deps:** bump @actions/core from 1.11.1 to 3.0.1 ([#200](https://github.com/argocd-diff-action/argocd-diff-action/issues/200)) ([1790bd5](https://github.com/argocd-diff-action/argocd-diff-action/commit/1790bd5df350dc5c5c0c74315b04a5b930e093be)), closes [#2348](https://github.com/argocd-diff-action/argocd-diff-action/issues/2348) [#2199](https://github.com/argocd-diff-action/argocd-diff-action/issues/2199) [#2110](https://github.com/argocd-diff-action/argocd-diff-action/issues/2110)
+
 ## [0.6.6](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.5...0.6.6) (2026-05-23)
 
 ### Build & Dependencies
