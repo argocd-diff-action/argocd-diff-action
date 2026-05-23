@@ -1,0 +1,4 @@
+allowBuilds:
+  pre-commit: true
+  spawn-sync: true
+  unrs-resolver: true
