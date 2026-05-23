@@ -3,7 +3,6 @@ import { globalIgnores } from 'eslint/config';
 import globals from 'globals';
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import eslintImportPlugin from 'eslint-plugin-import';
 
 export default tseslint.config(
     globalIgnores(['**/coverage/', '**/dist/', '**/lib/', '**/node_modules/']),
@@ -17,10 +16,6 @@ export default tseslint.config(
         jsx: true,
     }),
     {
-        plugins: {
-            import: eslintImportPlugin,
-        },
-
         languageOptions: {
             globals: {
                 ...globals.node,
@@ -73,7 +68,6 @@ export default tseslint.config(
             '@typescript-eslint/promise-function-async': 'error',
             '@typescript-eslint/require-array-sort-compare': 'error',
             '@typescript-eslint/restrict-plus-operands': 'error',
-            'github/array-foreach': 'off',
             '@stylistic/type-annotation-spacing': 'error',
             '@typescript-eslint/unbound-method': 'error',
         },

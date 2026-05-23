@@ -4,12 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A GitHub Action (TypeScript, runs on `node20`) that, on a PR, finds every ArgoCD Application sourced from the current repo and posts the ArgoCD diff as a PR comment. Distributed as an action — consumers reference `argocd-diff-action/argocd-diff-action@v0`, so the committed build artifact *is* the product.
+A GitHub Action (TypeScript, runs on `node24`) that, on a PR, finds every ArgoCD Application sourced from the current repo and posts the ArgoCD diff as a PR comment. Distributed as an action — consumers reference `argocd-diff-action/argocd-diff-action@v0`, so the committed build artifact *is* the product.
 
 ## Commands
 
 ```bash
-nvm use                      # Node 20 (see .nvmrc)
+nvm use                      # Node 24 (see .nvmrc)
 pnpm i --frozen-lockfile     # install (pnpm is required; corepack)
 pnpm run build               # bundle src/ -> dist/index.js via @vercel/ncc
 pnpm run test                # jest --coverage
