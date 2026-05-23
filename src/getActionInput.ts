@@ -1,5 +1,4 @@
 import * as core from '@actions/core';
-import assert from 'node:assert/strict';
 
 export interface ActionInput {
     arch: string;
@@ -26,7 +25,7 @@ export function parseHeaders(input: string): Map<string, string> {
             continue;
         }
 
-        let [header, value] = item.split(':').map(s => s.trim());
+        const [header, value] = item.split(':').map(s => s.trim());
 
         if (!header || header === '') {
             throw new Error(`Header name cannot be empty: ${item}`);

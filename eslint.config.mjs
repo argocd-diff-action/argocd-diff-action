@@ -52,7 +52,7 @@ export default tseslint.config(
                 },
             ],
 
-            '@stylistic/func-call-spacing': ['error', 'never'],
+            '@stylistic/function-call-spacing': ['error', 'never'],
             '@typescript-eslint/no-array-constructor': 'error',
             '@typescript-eslint/no-empty-interface': 'error',
             '@typescript-eslint/no-explicit-any': 'error',
@@ -76,5 +76,13 @@ export default tseslint.config(
             'github/array-foreach': 'off',
             '@stylistic/type-annotation-spacing': 'error',
             '@typescript-eslint/unbound-method': 'error',
+        },
+    },
+    {
+        files: ['__tests__/**', '__mocks__/**'],
+        languageOptions: {
+            globals: {
+                ...globals.jest,
+            },
         },
     });

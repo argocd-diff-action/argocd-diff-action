@@ -1,14 +1,14 @@
-import {chmodSync} from 'fs';
+import { chmodSync } from 'fs';
 import * as core from '@actions/core';
-import {downloadTool} from '@actions/tool-cache';
+import { downloadTool } from '@actions/tool-cache';
 
-import {type App} from './App.js';
-import {AppCollection} from './AppCollection.js';
-import {type AppTargetRevision} from './AppTargetRevision.js';
-import {type Diff} from '../Diff.js';
-import {type ExecResult, execCommand, scrubSecrets} from '../lib.js';
-import {ActionInput} from '../getActionInput.js';
-import {URL} from "node:url";
+import { type App } from './App.js';
+import { AppCollection } from './AppCollection.js';
+import { type AppTargetRevision } from './AppTargetRevision.js';
+import { type Diff } from '../Diff.js';
+import { type ExecResult, execCommand, scrubSecrets } from '../lib.js';
+import { ActionInput } from '../getActionInput.js';
+import { URL } from 'node:url';
 
 export class ArgoCDServer {
     binaryPath = 'bin/argo';
@@ -59,7 +59,7 @@ export class ArgoCDServer {
         if (app.spec.source?.path === undefined) {
             core.error(`Cannot diff ${app.metadata.name}, no source.path`);
 
-            return {app, diff: ''} as Diff;
+            return { app, diff: '' };
         }
 
         return this.getAppDiff(app, [`--local=${app.spec.source.path}`]);
@@ -77,12 +77,13 @@ export class ArgoCDServer {
             );
             core.debug(`stdout: ${res.stdout}`);
             core.debug(`stderr: ${res.stderr}`);
-            return {app, diff: res.stdout} as Diff;
-        } catch (e) {
+            return { app, diff: res.stdout };
+        }
+        catch (e) {
             res = e as ExecResult;
             core.error('Unexpected error when fetching app diff:');
             core.error(`${res.err}`);
-            return {app, diff: '', error: res} as Diff;
+            return { app, diff: '', error: res };
         }
     }
 
@@ -90,7 +91,7 @@ export class ArgoCDServer {
     async api(endpoint: string, params: { [key: string]: string } = {}, method = 'GET'): Promise<any> {
         const url = new URL(`${this.uri}/api/${endpoint}`);
 
-        for (let paramsKey in params) {
+        for (const paramsKey in params) {
             if (params[paramsKey]) {
                 url.searchParams.append(paramsKey, params[paramsKey]);
             }
@@ -101,6 +102,7 @@ export class ArgoCDServer {
         // response.json() returns `any`.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let responseText: any;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let responseJson: any;
 
         try {
@@ -120,7 +122,8 @@ export class ArgoCDServer {
             }
 
             responseJson = JSON.parse(responseText);
-        } catch (err) {
+        }
+        catch (err) {
             if (err instanceof Error) {
                 core.error(`Failed to fetch ${endpoint} from ${this.uri}.`);
                 core.error(`Response Text: ${responseText}`);
@@ -170,7 +173,8 @@ export class ArgoCDServer {
                 appCollectionDiffPromises.push(
                     this.getAppRevisionDiff(app, appTargetRevision.targetRevision),
                 );
-            } else {
+            }
+            else {
                 core.warning(
                     `Could not find Application '${appTargetRevision.appName}' in AppCollection for revision diffs.`,
                 );
@@ -191,10 +195,12 @@ export class ArgoCDServer {
             if (appDiff.error) {
                 core.setFailed(`ArgoCD diff failed for Application '${appDiff.app.metadata.name}'`);
                 diffs.push(appDiff); // Surface the error to the PR comment.
-            } else if (appDiff.diff != '') {
+            }
+            else if (appDiff.diff != '') {
                 core.info(`Found diff for Application '${appDiff.app.metadata.name}'.`);
                 diffs.push(appDiff);
-            } else {
+            }
+            else {
                 core.debug(`No diff found for Application '${appDiff.app.metadata.name}'.`);
             }
         });
