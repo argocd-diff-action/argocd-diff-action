@@ -1,3 +1,9 @@
+## [0.6.8](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.7...0.6.8) (2026-05-23)
+
+### Build & Dependencies
+
+* **deps:** bump @actions/tool-cache from 2.0.2 to 4.0.0 ([#199](https://github.com/argocd-diff-action/argocd-diff-action/issues/199)) ([f603b4e](https://github.com/argocd-diff-action/argocd-diff-action/commit/f603b4e3b284df5269540203c1204686d4bc657e))
+
 ## [0.6.7](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.6...0.6.7) (2026-05-23)
 
 ### Build & Dependencies
