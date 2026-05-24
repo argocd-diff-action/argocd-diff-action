@@ -30,6 +30,10 @@ jobs:
     # Fork PRs source the app from a different repo than the one running here, so
     # the action's filterByRepo would not match. Skip them.
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    # pull-requests: write lets the newest version post its diff as a PR comment.
+    permissions:
+      contents: read
+      pull-requests: write
     strategy:
       fail-fast: false
       matrix:
@@ -40,6 +44,11 @@ jobs:
           - v3.2.12
           - v3.3.10
           - v3.4.2
+        # Only the newest version posts a diff comment to the PR (to demonstrate
+        # the comment path without noise). Move this flag when bumping versions.
+        include:
+          - argocd-version: v3.4.2
+            comment-on-pr: true
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -134,6 +143,28 @@ jobs:
             "INPUT_TARGET-REVISIONS=${TARGET_REVISION}" \
             'INPUT_GITHUB-TOKEN=dummy' \
             node "${RUNNER_TEMP}/e2e-runner/index.js"
+
+      # Run the real action (computeDiffs + postDiffComment) so the diff lands as
+      # a PR comment, proving the comment path end-to-end. Only on PRs (needs a
+      # PR to comment on) and only the newest version (see the matrix include).
+      - name: Post diff comment to PR
+        if: github.event_name == 'pull_request' && matrix['comment-on-pr']
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pnpm exec ncc build src/main.ts -o "${RUNNER_TEMP}/e2e-action"
+          # The assertion runner already downloaded the argocd binary to bin/argo;
+          # the action re-downloads on start and tool-cache errors if it exists.
+          rm -f bin/argo
+          env \
+            'INPUT_ARGOCD-SERVER-FQDN=127.0.0.1:8080' \
+            'INPUT_ARGOCD-SERVER-TLS=false' \
+            "INPUT_ARGOCD-TOKEN=${ARGOCD_TOKEN}" \
+            'INPUT_ARGOCD-EXTRA-CLI-ARGS=--grpc-web' \
+            "INPUT_TARGET-REVISIONS=${TARGET_REVISION}" \
+            'INPUT_TIMEZONE=America/Toronto' \
+            "INPUT_GITHUB-TOKEN=${GH_TOKEN}" \
+            node "${RUNNER_TEMP}/e2e-action/index.js"
 
       - name: Dump diagnostics on failure
         if: failure()
