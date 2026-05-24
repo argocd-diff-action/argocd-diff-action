@@ -103,7 +103,7 @@ ${diff}
 `;
 
     const output = scrubSecrets(`${header}
-_Updated at ${new Date().toLocaleString('en-CA', { timeZone: actionInput.timezone })} PT_
+_Updated at ${new Date().toLocaleString('en-CA', { timeZone: actionInput.timezone, timeZoneName: 'short' })}_
   ${diffOutput.join('\n')}
 
 | Legend | Status |
