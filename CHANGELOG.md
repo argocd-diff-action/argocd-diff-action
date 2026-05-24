@@ -1,3 +1,9 @@
+## [0.6.14](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.13...0.6.14) (2026-05-24)
+
+### Bug Fixes
+
+* await PR comment create/update requests ([#213](https://github.com/argocd-diff-action/argocd-diff-action/issues/213)) ([e5f6e54](https://github.com/argocd-diff-action/argocd-diff-action/commit/e5f6e54968b2a658d57e1a75b1594b33d134b67c))
+
 ## [0.6.13](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.12...0.6.13) (2026-05-24)
 
 ### Bug Fixes
