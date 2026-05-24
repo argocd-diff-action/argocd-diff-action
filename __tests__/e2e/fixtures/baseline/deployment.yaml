@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: e2e-app
+  labels:
+    app: e2e-app
+spec:
+  # The e2e harness syncs this baseline (replicas: 1), then bumps the working
+  # copy to replicas: 2 so `argocd app diff --local` produces a known diff.
+  replicas: 1
+  selector:
+    matchLabels:
+      app: e2e-app
+  template:
+    metadata:
+      labels:
+        app: e2e-app
+    spec:
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.9

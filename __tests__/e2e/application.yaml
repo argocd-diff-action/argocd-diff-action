@@ -1,0 +1,21 @@
+# Templated by __tests__/e2e/setup.sh via envsubst.
+# REPO_URL must contain "<owner>/<repo>" so the action's filterByRepo matches,
+# and TARGET_REVISION must be a ref the ArgoCD repo-server can fetch (the PR
+# head branch on pull_request, or the default branch on schedule).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: e2e-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: ${REPO_URL}
+    targetRevision: ${TARGET_REVISION}
+    path: __tests__/e2e/fixtures/baseline
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: e2e-app
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
