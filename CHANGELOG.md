@@ -1,3 +1,13 @@
+## [0.6.13](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.12...0.6.13) (2026-05-24)
+
+### Bug Fixes
+
+* make installArgoCDCommand idempotent ([#214](https://github.com/argocd-diff-action/argocd-diff-action/issues/214)) ([67d2b45](https://github.com/argocd-diff-action/argocd-diff-action/commit/67d2b451226e73d1b458036517e9b69e8e91e5fb))
+
+### Tests
+
+* add e2e tests against real ArgoCD across a version matrix ([#212](https://github.com/argocd-diff-action/argocd-diff-action/issues/212)) ([8d87696](https://github.com/argocd-diff-action/argocd-diff-action/commit/8d876962a2c942583de2b72d56fcb5172f1098e4))
+
 ## [0.6.12](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.11...0.6.12) (2026-05-24)
 
 ### ⚠ BREAKING CHANGES
