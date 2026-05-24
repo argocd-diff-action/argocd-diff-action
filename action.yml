@@ -17,6 +17,10 @@ inputs:
   argocd-server-fqdn:
     description: 'ArgoCD server FQDN (i.e., without the protocol)'
     required: true
+  argocd-server-side-generate:
+    description: 'Render manifests on the ArgoCD server instead of locally. Required for Config Management Plugins (CMPs), and lets apps with relative paths outside their source dir resolve, since the whole checkout is uploaded.'
+    default: 'false'
+    required: false
   argocd-server-tls:
     description: 'Use TLS to communicate with ArgoCD'
     default: 'true'

@@ -164,6 +164,21 @@ describe('ArgoCDServer tests', function () {
         );
     });
 
+    test('serverSideGenerate diffs each app with --server-side-generate against the repo root', async () => {
+        mockedExecCommand
+            .mockReturnValueOnce(Promise.resolve(exceCommandAppLocalDiffAppOfApp())) // appOne response
+            .mockReturnValueOnce(Promise.resolve(exceCommandAppLocalDiffNoDiff())) // appTwo response
+            .mockReturnValueOnce(Promise.resolve(exceCommandAppLocalDiffNoDiff())); // appThree response
+
+        await argocdServer({ serverSideGenerate: true }).getAppCollectionLocalDiffs(appCollection());
+
+        expect(mockedExecCommand).toHaveBeenCalledWith(
+            `bin/argo app diff --local-repo-root=${process.cwd()} ${
+                appOne().metadata.name
+            } --server-side-generate --local=${process.cwd()} --exit-code=false --auth-token=fakeArgoCdToken --server=argocd.example --header "Authorization: Bearer super-secret-bearer-token" --header "X-Example-Header: Some custom value"`,
+        );
+    });
+
     test('An AppCollection and AppTargetRevisions get diffs with --revision for each targetRevision', async () => {
         const appTargetRevisions: AppTargetRevision[] = [
             { appName: appThree().metadata.name, targetRevision: '1.2.2' },
@@ -257,6 +272,7 @@ function appCollection(): AppCollection {
 function argocdServer(overrides?: {
     fqdn?: string;
     protocol?: 'http' | 'https';
+    serverSideGenerate?: boolean;
     uri?: string;
 }): ArgoCDServer {
     const actionInput: ActionInput = {
@@ -271,6 +287,7 @@ function argocdServer(overrides?: {
                 'X-Example-Header': 'Some custom value',
             })),
             protocol: 'https',
+            serverSideGenerate: false,
             token: 'fakeArgoCdToken',
             uri: 'https://argocd.example',
             targetRevisions: ['master', 'main', 'HEAD'],
