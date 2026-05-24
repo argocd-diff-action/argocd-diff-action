@@ -1,4 +1,4 @@
-import { chmodSync } from 'fs';
+import { chmodSync, rmSync } from 'fs';
 import * as core from '@actions/core';
 import { downloadTool } from '@actions/tool-cache';
 
@@ -32,6 +32,11 @@ export class ArgoCDServer {
         if (version == '') {
             version = await this.getServerVersion();
         }
+
+        // downloadTool errors if the destination already exists, so clear any
+        // binary a previous install left behind (e.g. the action running twice
+        // in one job). force: true makes this a no-op when the file is absent.
+        rmSync(this.binaryPath, { force: true });
 
         await downloadTool(
             `https://github.com/argoproj/argo-cd/releases/download/${version}/argocd-${arch}-amd64`,

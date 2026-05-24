@@ -21,6 +21,7 @@ const mockedExecCommand = jest.mocked(execCommand);
 
 describe('ArgoCDServer tests', function () {
     let chmodSync: sinon.SinonStub<[path: fs.PathLike, mode: fs.Mode], void>;
+    let rmSync: sinon.SinonStub<[path: fs.PathLike, options?: fs.RmOptions], void>;
 
     // rest the changes made by mockreturnvauleonce
     beforeEach(() => {
@@ -29,11 +30,13 @@ describe('ArgoCDServer tests', function () {
         mockedExecCommand.mockReset();
         // Create stub for fs.chmodSync with a return value of `void`.
         chmodSync = sinon.stub(fs, 'chmodSync');
+        rmSync = sinon.stub(fs, 'rmSync');
     });
 
     afterEach(() => {
     // Revert stub setup on chmodSync, in case other tests need it.
         chmodSync.restore();
+        rmSync.restore();
         fetchMock.clearHistory();
         fetchMock.removeRoutes();
         fetchMock.unmockGlobal();
@@ -91,6 +94,24 @@ describe('ArgoCDServer tests', function () {
             'https://github.com/argoproj/argo-cd/releases/download/v2.4.0/argocd-linux-amd64',
             'bin/argo',
         );
+    });
+
+    test('ArgoCDServer installArgoCDCommand removes a stale binary before downloading', async () => {
+        fetchMock.get('https://argocd.example/api/v1/applications', { response: { status: 200, body: '{}' } });
+
+        // mock response from fetch used in getServerVersion.
+        fetchMock.anyOnce(
+            JSON.stringify({
+                Version: 'v2.4.0+91aefab',
+            }),
+        );
+        mockedDownloadTool.mockReturnValueOnce(Promise.resolve('/path/to/tool'));
+
+        await argocdServer().installArgoCDCommand('');
+
+        // downloadTool errors if the destination already exists, so a prior
+        // binary must be cleared first.
+        expect(rmSync.calledOnceWith('bin/argo', { force: true })).toBe(true);
     });
 
     test('ArgoCDServer getAppDiff returns an error', async () => {
