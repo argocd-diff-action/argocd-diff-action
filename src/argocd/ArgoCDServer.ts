@@ -16,6 +16,7 @@ export class ArgoCDServer {
     fqdn: string;
     headers: Map<string, string>;
     protocol: string;
+    serverSideGenerate: boolean;
     token: string;
     uri: string;
 
@@ -24,6 +25,7 @@ export class ArgoCDServer {
         this.fqdn = actionInput.argocd.fqdn;
         this.headers = actionInput.argocd.headers;
         this.protocol = actionInput.argocd.protocol;
+        this.serverSideGenerate = actionInput.argocd.serverSideGenerate;
         this.token = actionInput.argocd.token;
         this.uri = actionInput.argocd.uri;
     }
@@ -61,6 +63,14 @@ export class ArgoCDServer {
     }
 
     async getAppLocalDiff(app: App): Promise<Diff> {
+        if (this.serverSideGenerate) {
+            // Upload the whole checkout and render on the ArgoCD server. This is
+            // required for Config Management Plugins (their socket only exists on
+            // the repo-server) and lets apps that reference files outside their
+            // own source.path via relative paths resolve.
+            return this.getAppDiff(app, ['--server-side-generate', `--local=${process.cwd()}`]);
+        }
+
         if (app.spec.source?.path === undefined) {
             core.error(`Cannot diff ${app.metadata.name}, no source.path`);
 

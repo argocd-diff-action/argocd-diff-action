@@ -9,6 +9,7 @@ export interface ActionInput {
         fqdn: string;
         headers: Map<string, string>;
         protocol: string;
+        serverSideGenerate: boolean;
         targetRevisions: string[];
         token: string;
         uri: string;
@@ -62,6 +63,7 @@ export default function getActionInput(): ActionInput {
             fqdn,
             headers: parseHeaders(core.getInput('argocd-headers')),
             protocol,
+            serverSideGenerate: core.getInput('argocd-server-side-generate') === 'true',
             targetRevisions: core.getInput('target-revisions')
                 .split(',')
                 .map(revision => revision.trim()),
