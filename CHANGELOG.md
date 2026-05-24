@@ -1,3 +1,10 @@
+## [0.7.0](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.14...0.7.0) (2026-05-24)
+
+### Features
+
+* **diff:** add argocd-server-side-generate input for CMPs ([#210](https://github.com/argocd-diff-action/argocd-diff-action/issues/210)) ([931c8b1](https://github.com/argocd-diff-action/argocd-diff-action/commit/931c8b10d53e49595cca42bb15f60cfd1e130003))
+* split large diffs across multiple PR comments ([#211](https://github.com/argocd-diff-action/argocd-diff-action/issues/211)) ([6d774ee](https://github.com/argocd-diff-action/argocd-diff-action/commit/6d774ee7a07d2b779f3d0a483f9d2548630e71d7))
+
 ## [0.6.14](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.13...0.6.14) (2026-05-24)
 
 ### Bug Fixes

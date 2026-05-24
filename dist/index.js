@@ -39682,9 +39682,13 @@ const SENSITIVE_HEADERS = [
     'Authorization',
     'Proxy-Authorization',
 ];
+// Large `argocd app diff` output overflows Node's default 1 MB stdout buffer
+// and crashes with ERR_CHILD_PROCESS_STDIO_MAXBUFFER before any diff is posted.
+const MAX_EXEC_BUFFER = 50 * 1024 * 1024;
 async function execCommand(command, options = {}) {
+    const execOptions = { maxBuffer: MAX_EXEC_BUFFER, ...options };
     return new Promise((done, failed) => {
-        (0,external_child_process_namespaceObject.exec)(command, options, (err, stdout, stderr) => {
+        (0,external_child_process_namespaceObject.exec)(command, execOptions, (err, stdout, stderr) => {
             const res = {
                 stdout: stdout.toString(),
                 stderr: stderr.toString(),
@@ -39729,6 +39733,7 @@ class ArgoCDServer {
     fqdn;
     headers;
     protocol;
+    serverSideGenerate;
     token;
     uri;
     constructor(actionInput) {
@@ -39736,6 +39741,7 @@ class ArgoCDServer {
         this.fqdn = actionInput.argocd.fqdn;
         this.headers = actionInput.argocd.headers;
         this.protocol = actionInput.argocd.protocol;
+        this.serverSideGenerate = actionInput.argocd.serverSideGenerate;
         this.token = actionInput.argocd.token;
         this.uri = actionInput.argocd.uri;
     }
@@ -39762,6 +39768,13 @@ class ArgoCDServer {
         return execCommand(cmd);
     }
     async getAppLocalDiff(app) {
+        if (this.serverSideGenerate) {
+            // Upload the whole checkout and render on the ArgoCD server. This is
+            // required for Config Management Plugins (their socket only exists on
+            // the repo-server) and lets apps that reference files outside their
+            // own source.path via relative paths resolve.
+            return this.getAppDiff(app, ['--server-side-generate', `--local=${process.cwd()}`]);
+        }
         if (app.spec.source?.path === undefined) {
             error(`Cannot diff ${app.metadata.name}, no source.path`);
             return { app, diff: '' };
@@ -39939,6 +39952,156 @@ function getAppOfAppTargetRevisions(diffs) {
     return appTargetRevisions;
 }
 
+;// CONCATENATED MODULE: ./src/comment.ts
+
+// GitHub rejects issue comment bodies longer than 65,536 characters. Stay
+// under it with margin for the join newlines and any rendering slack.
+const MAX_COMMENT_LENGTH = 65000;
+// Reserved space for the truncation notice, which is added only when an app's
+// diff is truncated and so is not counted in the untruncated section length.
+const NOTICE_ALLOWANCE = 400;
+// ArgoCD separates each changed resource in a diff with a header line like
+// `===== apps/Deployment my-namespace/my-app ======`.
+const RESOURCE_BOUNDARY = /^={5,} .+ ={5,}$/m;
+const RESOURCE_SPLIT = /(?=^={5,} .+ ={5,}$)/m;
+const LEGEND = `| Legend | Status |
+| :---:  | :---   |
+| ✅     | The app is synced in ArgoCD, and diffs you see are solely from this PR. |
+| ⚠️      | The app is out-of-sync in ArgoCD, and the diffs you see include those changes plus any from this PR. |
+| 🛑     | There was an error generating the ArgoCD diffs due to changes in this PR. |`;
+function commentMarkerPrefix(fqdn) {
+    return `<!-- argocd-diff-action ${fqdn} `;
+}
+function commentMarker(fqdn, part, total) {
+    return `${commentMarkerPrefix(fqdn)}part ${part}/${total} -->`;
+}
+// Renders the diffs into one or more comment bodies, each within
+// MAX_COMMENT_LENGTH. Always returns at least one body so an existing comment
+// can be updated to reflect that there are no diffs this round.
+function buildCommentBodies(options) {
+    const { diffs, fqdn, uri, title, updatedAt, headers } = options;
+    // Reserve worst-case frame overhead (largest part indicator + legend on
+    // every page) so each section is guaranteed to fit once framed.
+    const sampleFrame = `${commentMarker(fqdn, 99, 99)}
+## ${title} (part 99/99)
+${updatedAt}
+
+${LEGEND}`;
+    const sectionBudget = MAX_COMMENT_LENGTH - sampleFrame.length;
+    const sections = diffs.map(diff => renderAppSection(diff, uri, sectionBudget));
+    const pages = [];
+    let current = [];
+    let currentLength = 0;
+    for (const section of sections) {
+        if (current.length > 0 && currentLength + section.length + 1 > sectionBudget) {
+            pages.push(current);
+            current = [];
+            currentLength = 0;
+        }
+        current.push(section);
+        currentLength += section.length + 1;
+    }
+    if (current.length > 0 || pages.length === 0) {
+        pages.push(current);
+    }
+    const total = pages.length;
+    return pages.map((pageSections, index) => {
+        const part = index + 1;
+        const partSuffix = total > 1 ? ` (part ${part}/${total})` : '';
+        const body = `${commentMarker(fqdn, part, total)}
+## ${title}${partSuffix}
+${updatedAt}
+${pageSections.join('\n')}
+
+${part === total ? LEGEND : ''}`;
+        return scrubSecrets(body, headers);
+    });
+}
+function renderAppSection(diff, uri, budget) {
+    const header = renderAppHeader(diff, uri);
+    if (!diff.diff) {
+        return `${header}
+---
+`;
+    }
+    const fullSection = `${header}
+${renderDiffBlock(diff.diff)}
+---
+`;
+    if (fullSection.length <= budget) {
+        return fullSection;
+    }
+    const nonDiffLength = fullSection.length - diff.diff.length;
+    const diffBudget = Math.max(0, budget - nonDiffLength - NOTICE_ALLOWANCE);
+    const { text, shown, total } = truncateDiff(diff.diff, diffBudget);
+    return `${header}
+${truncationNotice(diff.app, shown, total)}
+${renderDiffBlock(text)}
+---
+`;
+}
+function renderAppHeader(diff, uri) {
+    const { app, error } = diff;
+    const syncStatus = app.status.sync.status === 'Synced' ? 'Synced ✅' : 'Out of Sync ⚠️ ';
+    const errorBlock = error
+        ? `
+**\`stderr:\`**
+\`\`\`
+${error.stderr}
+\`\`\`
+
+**\`command:\`**
+\`\`\`json
+${JSON.stringify(error.err)}
+\`\`\`
+`
+        : '';
+    return `
+App: [\`${app.metadata.name}\`](${uri}/applications/${app.metadata.name})
+YAML generation: ${error ? ' Error 🛑' : 'Success 🟢'}
+App sync status: ${syncStatus}
+${errorBlock}`;
+}
+function renderDiffBlock(diff) {
+    return `<details>
+
+\`\`\`diff
+${diff}
+\`\`\`
+
+</details>`;
+}
+// Keeps whole resources from the diff up to the budget. Falls back to a hard
+// character cut only when even the first resource exceeds the budget, so the
+// comment always shows some content rather than an empty block.
+function truncateDiff(diff, budget) {
+    const chunks = diff.split(RESOURCE_SPLIT);
+    const total = chunks.filter(chunk => RESOURCE_BOUNDARY.test(chunk)).length;
+    let text = '';
+    let shown = 0;
+    for (const chunk of chunks) {
+        if (text.length + chunk.length > budget) {
+            break;
+        }
+        text += chunk;
+        if (RESOURCE_BOUNDARY.test(chunk)) {
+            shown += 1;
+        }
+    }
+    if (text === '') {
+        text = diff.slice(0, Math.max(0, budget));
+    }
+    return { text: text.trimEnd(), shown, total };
+}
+function truncationNotice(app, shown, total) {
+    const path = app.spec.source?.path;
+    const command = path
+        ? `argocd app diff ${app.metadata.name} --local=${path}`
+        : `argocd app diff ${app.metadata.name}`;
+    return `> ⚠️ Diff truncated (showing ${shown}/${total} resources). Run locally to see the full diff:
+> \`${command}\``;
+}
+
 ;// CONCATENATED MODULE: ./src/getActionInput.ts
 
 function parseHeaders(input) {
@@ -39977,6 +40140,7 @@ function getActionInput() {
             fqdn,
             headers: parseHeaders(getInput('argocd-headers')),
             protocol,
+            serverSideGenerate: getInput('argocd-server-side-generate') === 'true',
             targetRevisions: getInput('target-revisions')
                 .split(',')
                 .map(revision => revision.trim()),
@@ -40012,75 +40176,48 @@ async function postDiffComment(diffs, actionInput) {
     const sha = github_context.payload.pull_request?.head?.sha;
     const commitLink = `https://github.com/${owner}/${repo}/pull/${github_context.issue.number}/commits/${sha}`;
     const shortCommitSha = String(sha).substring(0, 7);
-    const diffOutput = diffs.map(({ app, diff, error }) => `
-App: [\`${app.metadata.name}\`](${actionInput.argocd.uri}/applications/${app.metadata.name})
-YAML generation: ${error ? ' Error 🛑' : 'Success 🟢'}
-App sync status: ${app.status.sync.status === 'Synced' ? 'Synced ✅' : 'Out of Sync ⚠️ '}
-${error
-        ? `
-**\`stderr:\`**
-\`\`\`
-${error.stderr}
-\`\`\`
-
-**\`command:\`**
-\`\`\`json
-${JSON.stringify(error.err)}
-\`\`\`
-`
-        : ''}
-
-${diff
-        ? `
-<details>
-
-\`\`\`diff
-${diff}
-\`\`\`
-
-</details>
-`
-        : ''}
----
-`);
-    // Use a unique value at the beginning of each comment so we can find the correct comment for the argocd server FQDN
-    const headerPrefix = `<!-- argocd-diff-action ${actionInput.argocd.fqdn} -->`;
-    const header = `${headerPrefix}
-## ArgoCD Diff ${actionInput.argocd.fqdn} for commit [\`${shortCommitSha}\`](${commitLink})
-`;
-    const output = scrubSecrets(`${header}
-_Updated at ${new Date().toLocaleString('en-CA', { timeZone: actionInput.timezone })} PT_
-  ${diffOutput.join('\n')}
-
-| Legend | Status |
-| :---:  | :---   |
-| ✅     | The app is synced in ArgoCD, and diffs you see are solely from this PR. |
-| ⚠️      | The app is out-of-sync in ArgoCD, and the diffs you see include those changes plus any from this PR. |
-| 🛑     | There was an error generating the ArgoCD diffs due to changes in this PR. |
-`, actionInput.argocd.headers);
+    const bodies = buildCommentBodies({
+        diffs,
+        fqdn: actionInput.argocd.fqdn,
+        uri: actionInput.argocd.uri,
+        title: `ArgoCD Diff ${actionInput.argocd.fqdn} for commit [\`${shortCommitSha}\`](${commitLink})`,
+        updatedAt: `_Updated at ${new Date().toLocaleString('en-CA', { timeZone: actionInput.timezone, timeZoneName: 'short' })}_`,
+        headers: actionInput.argocd.headers,
+    });
+    // Each comment is keyed by a hidden marker carrying the ArgoCD FQDN so that
+    // re-runs find and update their own comments instead of stacking new ones.
+    const markerPrefix = commentMarkerPrefix(actionInput.argocd.fqdn);
     const commentsResponse = await octokit.rest.issues.listComments({
         issue_number: github_context.issue.number,
         owner,
         repo,
     });
-    const existingComment = commentsResponse.data.find(d => d.body?.includes(headerPrefix) ?? false);
-    // Existing comments should be updated even if there are no changes this round in order to indicate that
-    if (existingComment) {
-        await octokit.rest.issues.updateComment({
-            owner,
-            repo,
-            comment_id: existingComment.id,
-            body: output,
-        });
-        // Only post a new comment when there are changes
+    const existingComments = commentsResponse.data
+        .filter(comment => comment.body?.includes(markerPrefix) ?? false)
+        .sort((a, b) => a.id - b.id);
+    // Nothing to report and nothing posted before: stay silent.
+    if (diffs.length === 0 && existingComments.length === 0) {
+        return;
     }
-    else if (diffs.length) {
-        await octokit.rest.issues.createComment({
-            issue_number: github_context.issue.number,
-            owner,
-            repo,
-            body: output,
-        });
+    // Reconcile the rendered pages against existing comments: update in place,
+    // create any missing pages, and delete leftovers from a larger prior run.
+    for (let i = 0; i < bodies.length; i++) {
+        const body = bodies[i] ?? '';
+        const existing = existingComments[i];
+        if (existing) {
+            await octokit.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+        }
+        else {
+            await octokit.rest.issues.createComment({
+                issue_number: github_context.issue.number,
+                owner,
+                repo,
+                body,
+            });
+        }
+    }
+    for (const comment of existingComments.slice(bodies.length)) {
+        await octokit.rest.issues.deleteComment({ owner, repo, comment_id: comment.id });
     }
 }
 

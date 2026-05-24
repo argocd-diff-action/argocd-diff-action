@@ -100,6 +100,7 @@ service directly:
 | `argocd-extra-cli-args` | false | --grpc-web | Extra arguments to pass to the argocd CLI |
 | `argocd-headers` | false |  | A list of headers to pass to argocd |
 | `argocd-server-fqdn` | true |  | ArgoCD server FQDN (i.e., without the protocol) |
+| `argocd-server-side-generate` | false | false | Render manifests on the ArgoCD server instead of locally. Required for Config Management Plugins (CMPs), and lets apps with relative paths outside their source dir resolve, since the whole checkout is uploaded. |
 | `argocd-server-tls` | false | true | Use TLS to communicate with ArgoCD |
 | `argocd-token` | true |  | ArgoCD token for a local or project-scoped user https://argoproj.github.io/argo-cd/operator-manual/user-management/#local-usersaccounts-v15 |
 | `argocd-version` | false |  | `argocd` command version to install. Defaults to the server version. |
