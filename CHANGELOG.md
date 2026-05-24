@@ -1,3 +1,25 @@
+## [0.6.12](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.11...0.6.12) (2026-05-24)
+
+### ⚠ BREAKING CHANGES
+
+* run on Node 24 runtime and upgrade dependencies (#208)
+
+### Build & Dependencies
+
+* **deps-dev:** upgrade pnpm to 11.2.2 ([#207](https://github.com/argocd-diff-action/argocd-diff-action/issues/207)) ([f69a1e6](https://github.com/argocd-diff-action/argocd-diff-action/commit/f69a1e629a38085e9fbbb8fc54d5ce90672cc092))
+
+### Documentation
+
+* add CLAUDE.md ([664ab77](https://github.com/argocd-diff-action/argocd-diff-action/commit/664ab772fec85ff86b21cf0987b9a604e1210771))
+
+### Features
+
+* run on Node 24 runtime and upgrade dependencies ([#208](https://github.com/argocd-diff-action/argocd-diff-action/issues/208)) ([13477ad](https://github.com/argocd-diff-action/argocd-diff-action/commit/13477adc16c8a62df606a91b6243ad5ef19fa5c4)), closes [#175](https://github.com/argocd-diff-action/argocd-diff-action/issues/175)
+
+### Bug Fixes
+
+* use dynamic timezone abbreviation in PR comment timestamp ([#209](https://github.com/argocd-diff-action/argocd-diff-action/issues/209)) ([81f8e40](https://github.com/argocd-diff-action/argocd-diff-action/commit/81f8e40aaa924337ef7234cbac5a1905c08a2f72))
+
 ## [0.6.11](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.10...0.6.11) (2026-05-23)
 
 ### Build & Dependencies
