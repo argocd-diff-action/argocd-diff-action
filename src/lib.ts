@@ -12,9 +12,14 @@ export interface ExecResult {
     stderr: string;
 }
 
+// Large `argocd app diff` output overflows Node's default 1 MB stdout buffer
+// and crashes with ERR_CHILD_PROCESS_STDIO_MAXBUFFER before any diff is posted.
+const MAX_EXEC_BUFFER = 50 * 1024 * 1024;
+
 export async function execCommand(command: string, options: ExecOptions = {}): Promise<ExecResult> {
+    const execOptions: ExecOptions = { maxBuffer: MAX_EXEC_BUFFER, ...options };
     return new Promise<ExecResult>((done, failed) => {
-        exec(command, options, (err: ExecException | null, stdout: string | Buffer, stderr: string | Buffer): void => {
+        exec(command, execOptions, (err: ExecException | null, stdout: string | Buffer, stderr: string | Buffer): void => {
             const res: ExecResult = {
                 stdout: stdout.toString(),
                 stderr: stderr.toString(),
