@@ -95,7 +95,7 @@ _Updated at ${new Date().toLocaleString('en-CA', { timeZone: actionInput.timezon
 
     // Existing comments should be updated even if there are no changes this round in order to indicate that
     if (existingComment) {
-        octokit.rest.issues.updateComment({
+        await octokit.rest.issues.updateComment({
             owner,
             repo,
             comment_id: existingComment.id,
@@ -104,7 +104,7 @@ _Updated at ${new Date().toLocaleString('en-CA', { timeZone: actionInput.timezon
     // Only post a new comment when there are changes
     }
     else if (diffs.length) {
-        octokit.rest.issues.createComment({
+        await octokit.rest.issues.createComment({
             issue_number: github.context.issue.number,
             owner,
             repo,
