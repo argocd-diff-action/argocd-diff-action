@@ -1,0 +1,174 @@
+name: E2E
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'action.yml'
+      - 'dist/**'
+      - '__tests__/e2e/**'
+      - '.github/workflows/e2e.yml'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+  schedule:
+    # Nightly so newly released ArgoCD versions that break the action surface
+    # without waiting for a PR.
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: argocd ${{ matrix.argocd-version }}
+    runs-on: ubuntu-latest
+    # Fork PRs source the app from a different repo than the one running here, so
+    # the action's filterByRepo would not match. Skip them.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    # pull-requests: write lets the newest version post its diff as a PR comment.
+    permissions:
+      contents: read
+      pull-requests: write
+    strategy:
+      fail-fast: false
+      matrix:
+        # Latest patch of the recent minors plus the newest release. Bump these
+        # as ArgoCD releases new versions.
+        argocd-version:
+          - v3.1.16
+          - v3.2.12
+          - v3.3.10
+          - v3.4.2
+        # Only the newest version posts a diff comment to the PR (to demonstrate
+        # the comment path without noise). Move this flag when bumping versions.
+        include:
+          - argocd-version: v3.4.2
+            comment-on-pr: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Compute test inputs
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "TARGET_REVISION=${{ github.head_ref }}" >> "$GITHUB_ENV"
+          else
+            echo "TARGET_REVISION=${{ github.ref_name }}" >> "$GITHUB_ENV"
+          fi
+          echo "REPO_URL=${{ github.server_url }}/${{ github.repository }}" >> "$GITHUB_ENV"
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm i --frozen-lockfile
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1
+        with:
+          config: __tests__/e2e/kind-config.yaml
+
+      - name: Install ArgoCD ${{ matrix.argocd-version }}
+        run: |
+          kubectl create namespace argocd
+          # Server-side apply: ArgoCD's CRDs exceed the 256KB client-side apply
+          # annotation limit.
+          kubectl apply --server-side -n argocd \
+            -f "https://raw.githubusercontent.com/argoproj/argo-cd/${{ matrix.argocd-version }}/manifests/install.yaml"
+          # Run the server in plaintext and add a read-only apiKey account for the
+          # action. Patch + restart so the server picks up these settings before
+          # the NodePort exposes it.
+          kubectl -n argocd patch configmap argocd-cmd-params-cm --type merge \
+            -p '{"data":{"server.insecure":"true"}}'
+          kubectl -n argocd patch configmap argocd-cm --type merge \
+            -p '{"data":{"accounts.argocd-diff-action":"apiKey"}}'
+          kubectl -n argocd patch configmap argocd-rbac-cm --type merge \
+            -p '{"data":{"policy.csv":"g, argocd-diff-action, role:readonly"}}'
+          kubectl -n argocd rollout restart deploy/argocd-server
+          # Expose the server on the host port the kind config maps (8080).
+          kubectl apply -f __tests__/e2e/argocd-nodeport.yaml
+
+      - name: Wait for ArgoCD
+        run: |
+          kubectl -n argocd rollout status deploy/argocd-server --timeout=300s
+          kubectl -n argocd rollout status deploy/argocd-repo-server --timeout=300s
+          kubectl -n argocd rollout status statefulset/argocd-application-controller --timeout=300s
+
+      - name: Install argocd CLI
+        run: |
+          sudo curl -sSL -o /usr/local/bin/argocd \
+            "https://github.com/argoproj/argo-cd/releases/download/${{ matrix.argocd-version }}/argocd-linux-amd64"
+          sudo chmod +x /usr/local/bin/argocd
+
+      - name: Wait for ArgoCD endpoint
+        run: |
+          # The kind NodePort mapping exposes the server on the host's :8080.
+          for _ in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:8080/healthz >/dev/null; then
+              echo "ArgoCD reachable."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "ArgoCD did not become reachable." >&2
+          exit 1
+
+      - name: Set up ArgoCD app and token
+        run: bash __tests__/e2e/setup.sh
+
+      - name: Bump replicas to create a diff
+        run: |
+          sed -i 's/replicas: 1/replicas: 2/' __tests__/e2e/fixtures/baseline/deployment.yaml
+
+      - name: Build e2e runner
+        run: pnpm exec ncc build __tests__/e2e/runDiff.ts -o "${RUNNER_TEMP}/e2e-runner"
+
+      - name: Run e2e diff assertions
+        run: |
+          env \
+            'INPUT_ARGOCD-SERVER-FQDN=127.0.0.1:8080' \
+            'INPUT_ARGOCD-SERVER-TLS=false' \
+            "INPUT_ARGOCD-TOKEN=${ARGOCD_TOKEN}" \
+            'INPUT_ARGOCD-EXTRA-CLI-ARGS=--grpc-web' \
+            "INPUT_TARGET-REVISIONS=${TARGET_REVISION}" \
+            'INPUT_GITHUB-TOKEN=dummy' \
+            node "${RUNNER_TEMP}/e2e-runner/index.js"
+
+      # Run the real action (computeDiffs + postDiffComment) so the diff lands as
+      # a PR comment, proving the comment path end-to-end. Only on PRs (needs a
+      # PR to comment on) and only the newest version (see the matrix include).
+      - name: Post diff comment to PR
+        if: github.event_name == 'pull_request' && matrix['comment-on-pr']
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pnpm exec ncc build src/main.ts -o "${RUNNER_TEMP}/e2e-action"
+          # The assertion runner already downloaded the argocd binary to bin/argo;
+          # the action re-downloads on start and tool-cache errors if it exists.
+          rm -f bin/argo
+          env \
+            'INPUT_ARGOCD-SERVER-FQDN=127.0.0.1:8080' \
+            'INPUT_ARGOCD-SERVER-TLS=false' \
+            "INPUT_ARGOCD-TOKEN=${ARGOCD_TOKEN}" \
+            'INPUT_ARGOCD-EXTRA-CLI-ARGS=--grpc-web' \
+            "INPUT_TARGET-REVISIONS=${TARGET_REVISION}" \
+            'INPUT_TIMEZONE=America/Toronto' \
+            "INPUT_GITHUB-TOKEN=${GH_TOKEN}" \
+            node "${RUNNER_TEMP}/e2e-action/index.js"
+
+      - name: Dump diagnostics on failure
+        if: failure()
+        run: |
+          kubectl -n argocd get pods || true
+          kubectl -n argocd get svc argocd-server-nodeport -o wide || true
+          argocd app get e2e-app --grpc-web || true

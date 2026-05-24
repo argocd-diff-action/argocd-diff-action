@@ -1,0 +1,12 @@
+# Maps the runner's host port 8080 to the cluster's argocd-server NodePort
+# (30080), so the action and CLI reach ArgoCD at 127.0.0.1:8080 without a
+# long-lived `kubectl port-forward` process (which dies mid-run in CI). Docker
+# owns this forward, so there is no background process to be reaped.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - containerPort: 30080
+        hostPort: 8080
+        protocol: TCP
