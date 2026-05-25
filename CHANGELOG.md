@@ -1,3 +1,9 @@
+## [0.7.1](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.7.0...0.7.1) (2026-05-25)
+
+### Build & Dependencies
+
+* **deps:** bump actions/create-github-app-token from 2 to 3 ([#215](https://github.com/argocd-diff-action/argocd-diff-action/issues/215)) ([fe86ccd](https://github.com/argocd-diff-action/argocd-diff-action/commit/fe86ccd840f049a60e6732e6006580bea40516c3))
+
 ## [0.7.0](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.6.14...0.7.0) (2026-05-24)
 
 ### Features
