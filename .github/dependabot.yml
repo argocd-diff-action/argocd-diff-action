@@ -4,6 +4,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 2
+      semver-minor-days: 5
+      semver-major-days: 14
     groups:
       actions-minor:
         update-types:
@@ -13,6 +17,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 2
+      semver-minor-days: 5
+      semver-major-days: 14
     ignore:
       - dependency-name: "@types/node"
         update-types:
