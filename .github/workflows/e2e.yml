@@ -37,15 +37,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Latest patch of the recent minors plus the newest release. Bump these
-        # as ArgoCD releases new versions.
+        # Latest patch of the recent minors plus the newest release. Kept current
+        # by the update-argocd-versions workflow (which opens a bump PR); edit by
+        # hand only to change how many minors are tracked.
         argocd-version:
           - v3.1.16
           - v3.2.12
           - v3.3.10
           - v3.4.2
         # Only the newest version posts a diff comment to the PR (to demonstrate
-        # the comment path without noise). Move this flag when bumping versions.
+        # the comment path without noise). The bump workflow moves this flag to
+        # the newest pin automatically.
         include:
           - argocd-version: v3.4.2
             comment-on-pr: true
