@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Logs into a freshly installed ArgoCD, mints a read-only API token for the
 # action, and creates + syncs the e2e baseline Application. Expects ArgoCD to be
-# reachable in plaintext at ARGOCD_ADDR (default 127.0.0.1:8080) and a logged-in
-# admin via the initial admin secret. Writes ARGOCD_TOKEN to GITHUB_ENV.
+# reachable in plaintext at ARGOCD_ADDR (default 127.0.0.1:8080) and the
+# deterministic admin password the e2e workflow pins on argocd-secret. Writes
+# ARGOCD_TOKEN to GITHUB_ENV.
 set -euo pipefail
 
 : "${REPO_URL:?REPO_URL must be set}"
@@ -11,8 +12,9 @@ set -euo pipefail
 # IPv6 [::1] first, but kubectl port-forward only binds IPv4 127.0.0.1.
 ARGOCD_ADDR="${ARGOCD_ADDR:-127.0.0.1:8080}"
 
-password="$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d)"
-argocd login "${ARGOCD_ADDR}" --username admin --password "${password}" --plaintext --grpc-web --insecure
+# Deterministic throwaway admin password pinned by the e2e workflow's
+# argocd-secret patch; keep in sync with the bcrypt hash there.
+argocd login "${ARGOCD_ADDR}" --username admin --password 'argocd-admin-pw' --plaintext --grpc-web --insecure
 
 token="$(argocd account generate-token --account argocd-diff-action)"
 echo "::add-mask::${token}"
