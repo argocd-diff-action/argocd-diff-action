@@ -85,15 +85,26 @@ jobs:
           # annotation limit.
           kubectl apply --server-side -n argocd \
             -f "https://raw.githubusercontent.com/argoproj/argo-cd/${{ matrix.argocd-version }}/manifests/install.yaml"
-          # Run the server in plaintext and add a read-only apiKey account for the
-          # action. Patch + restart so the server picks up these settings before
-          # the NodePort exposes it.
+          # Let the first server generation finish bootstrapping before we touch
+          # the admin credential. Otherwise it races our admin.password patch
+          # below (and previously raced the auto-generated
+          # argocd-initial-admin-secret), leaving the active hash out of sync and
+          # login failing intermittently on whichever matrix leg starts fastest.
+          kubectl -n argocd rollout status deploy/argocd-server --timeout=300s
+          # Run the server in plaintext, add a read-only apiKey account for the
+          # action, and pin a deterministic admin password (throwaway test creds).
+          # Patch + restart so the server picks up these settings before the
+          # NodePort exposes it.
           kubectl -n argocd patch configmap argocd-cmd-params-cm --type merge \
             -p '{"data":{"server.insecure":"true"}}'
           kubectl -n argocd patch configmap argocd-cm --type merge \
             -p '{"data":{"accounts.argocd-diff-action":"apiKey"}}'
           kubectl -n argocd patch configmap argocd-rbac-cm --type merge \
             -p '{"data":{"policy.csv":"g, argocd-diff-action, role:readonly"}}'
+          # bcrypt(cost 10) of "argocd-admin-pw"; setup.sh logs in with that
+          # plaintext. Keep the two in sync if either changes.
+          kubectl -n argocd patch secret argocd-secret --type merge \
+            -p '{"stringData":{"admin.password":"$2a$10$NwZRsmGbF1LhBdyHB7GYbuH9Ax.M8SilWZ8joUC3xqC5zDWCyuBW2","admin.passwordMtime":"2024-01-01T00:00:00Z"}}'
           kubectl -n argocd rollout restart deploy/argocd-server
           # Expose the server on the host port the kind config maps (8080).
           kubectl apply -f __tests__/e2e/argocd-nodeport.yaml
