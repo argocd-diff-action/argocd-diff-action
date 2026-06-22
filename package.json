@@ -50,7 +50,7 @@
     "globals": "^17.6.0",
     "jest": "^30.4.2",
     "jest-circus": "^30.4.2",
-    "js-yaml": "^4.2.0",
+    "js-yaml": "^5.0.0",
     "pre-commit": "^2.0.0",
     "semantic-release": "^25.0.5",
     "sinon": "^22.0.0",
