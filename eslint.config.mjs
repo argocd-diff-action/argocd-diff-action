@@ -5,7 +5,7 @@ import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-    globalIgnores(['**/coverage/', '**/dist/', '**/lib/', '**/node_modules/']),
+    globalIgnores(['**/coverage/', '**/dist/', '**/lib/', '**/node_modules/', '**/.claude/']),
     eslint.configs.recommended,
     tseslint.configs.recommended,
     stylistic.configs.customize({
@@ -78,5 +78,14 @@ export default tseslint.config(
             globals: {
                 ...globals.jest,
             },
+        },
+    },
+    {
+        // Plain JavaScript files cannot carry type annotations, so TypeScript
+        // syntax rules that demand them are unsatisfiable here.
+        files: ['**/*.{js,mjs,cjs}'],
+        rules: {
+            '@typescript-eslint/explicit-function-return-type': 'off',
+            '@typescript-eslint/explicit-member-accessibility': 'off',
         },
     });
