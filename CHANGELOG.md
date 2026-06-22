@@ -1,3 +1,23 @@
+## [0.7.2](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.7.1...0.7.2) (2026-06-22)
+
+### Build & Dependencies
+
+* **deps-dev:** bump js-yaml from 4.2.0 to 5.0.0 ([#226](https://github.com/argocd-diff-action/argocd-diff-action/issues/226)) ([9c88c45](https://github.com/argocd-diff-action/argocd-diff-action/commit/9c88c45be846df17fa5111cf7eecc6d25af2b800))
+* **deps-dev:** bump the npm-development group across 1 directory with 3 updates ([#216](https://github.com/argocd-diff-action/argocd-diff-action/issues/216)) ([ec5bd2b](https://github.com/argocd-diff-action/argocd-diff-action/commit/ec5bd2b1e2355b351df38a3f8fa732d8868c326f))
+* **deps-dev:** bump the npm-development group with 2 updates ([#222](https://github.com/argocd-diff-action/argocd-diff-action/issues/222)) ([19291ca](https://github.com/argocd-diff-action/argocd-diff-action/commit/19291ca9bf11b6b4c5fc1fe49043dcbf8f0d127c))
+* **deps-dev:** bump the npm-development group with 5 updates ([#223](https://github.com/argocd-diff-action/argocd-diff-action/issues/223)) ([0a4a2aa](https://github.com/argocd-diff-action/argocd-diff-action/commit/0a4a2aa0bfd864de88d9f1d8191a6626ff93571b))
+* **deps-dev:** bump typescript-eslint from 8.61.0 to 8.61.1 in the npm-development group ([#225](https://github.com/argocd-diff-action/argocd-diff-action/issues/225)) ([b084655](https://github.com/argocd-diff-action/argocd-diff-action/commit/b084655f6be9309478f580810421bfb8bec4a4a5))
+* **deps:** bump actions/checkout from 6 to 7 ([#224](https://github.com/argocd-diff-action/argocd-diff-action/issues/224)) ([117a7e7](https://github.com/argocd-diff-action/argocd-diff-action/commit/117a7e7eddb7dac7bc968180e4928255714f8206))
+
+### Continous Integration
+
+* **dependabot:** add cooldown to delay new dependency PRs ([#217](https://github.com/argocd-diff-action/argocd-diff-action/issues/217)) ([9f56aaa](https://github.com/argocd-diff-action/argocd-diff-action/commit/9f56aaae59e33bae440e6b0928fc2372085ba19f)), closes [#216](https://github.com/argocd-diff-action/argocd-diff-action/issues/216) [#216](https://github.com/argocd-diff-action/argocd-diff-action/issues/216)
+* **e2e:** automate ArgoCD version bumps ([#219](https://github.com/argocd-diff-action/argocd-diff-action/issues/219)) ([893105f](https://github.com/argocd-diff-action/argocd-diff-action/commit/893105fb132d0aea47403aa51c576e39158e1bb6))
+* **e2e:** bump ArgoCD test versions (patch) ([#220](https://github.com/argocd-diff-action/argocd-diff-action/issues/220)) ([b8d0874](https://github.com/argocd-diff-action/argocd-diff-action/commit/b8d08746161788ef74b01a290dca7ecbbd0d06fc))
+* **e2e:** pin deterministic admin password to fix login race ([#218](https://github.com/argocd-diff-action/argocd-diff-action/issues/218)) ([035ed85](https://github.com/argocd-diff-action/argocd-diff-action/commit/035ed85ebfb0056e2261b55ff64a9d176322a99e)), closes [#26](https://github.com/argocd-diff-action/argocd-diff-action/issues/26)
+* modernize workflow action usage ([#221](https://github.com/argocd-diff-action/argocd-diff-action/issues/221)) ([1873816](https://github.com/argocd-diff-action/argocd-diff-action/commit/1873816ef1378d4042e66a0c5617032bc4a5ff02))
+* run lint on PRs ([#227](https://github.com/argocd-diff-action/argocd-diff-action/issues/227)) ([c3431bc](https://github.com/argocd-diff-action/argocd-diff-action/commit/c3431bccee2e36d1e07f79047f66e081a7fa64ac))
+
 ## [0.7.1](https://github.com/argocd-diff-action/argocd-diff-action/compare/0.7.0...0.7.1) (2026-05-25)
 
 ### Build & Dependencies
