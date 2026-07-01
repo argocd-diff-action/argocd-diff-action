@@ -44,7 +44,7 @@
     "@types/node": "^24.13.2",
     "@types/sinon": "^21.0.1",
     "@vercel/ncc": "^0.44.0",
-    "conventional-changelog-conventionalcommits": "^9.3.1",
+    "conventional-changelog-conventionalcommits": "^10.2.0",
     "eslint": "^10.6.0",
     "fetch-mock": "^12.6.0",
     "globals": "^17.7.0",
