@@ -43,8 +43,8 @@ importers:
         specifier: ^24.13.2
         version: 24.13.2
       '@types/sinon':
-        specifier: ^21.0.1
-        version: 21.0.1
+        specifier: ^22.0.0
+        version: 22.0.0
       '@vercel/ncc':
         specifier: ^0.44.1
         version: 0.44.1
@@ -731,11 +731,11 @@ packages:
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
 
-  '@types/sinon@21.0.1':
-    resolution: {integrity: sha512-5yoJSqLbjH8T9V2bksgRayuhpZy+723/z6wBOR+Soe4ZlXC0eW8Na71TeaZPUWDQvM7LYKa9UGFc6LRqxiR5fQ==}
+  '@types/sinon@22.0.0':
+    resolution: {integrity: sha512-TDbVpbccc2HfiqHR09Argj3mHV1KMW7sCCKj52fsl8lbRLkEn7fB1966EWhOKWUBcqfBueZuPoA7/OK1CKiy3g==}
 
-  '@types/sinonjs__fake-timers@8.1.5':
-    resolution: {integrity: sha512-mQkU2jY8jJEF7YHjHvsQO8+3ughTL1mcnn96igfhONmR+fUPSKIkefQYpSe8bsly2Ep7oQbn/6VG5/9/0qcArQ==}
+  '@types/sinonjs__fake-timers@15.0.1':
+    resolution: {integrity: sha512-Ko2tjWJq8oozHzHV+reuvS5KYIRAokHnGbDwGh/J64LntgpbuylF74ipEL24HCyRjf9FOlBiBHWBR1RlVKsI1w==}
 
   '@types/stack-utils@2.0.3':
     resolution: {integrity: sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==}
@@ -3840,11 +3840,11 @@ snapshots:
 
   '@types/normalize-package-data@2.4.4': {}
 
-  '@types/sinon@21.0.1':
+  '@types/sinon@22.0.0':
     dependencies:
-      '@types/sinonjs__fake-timers': 8.1.5
+      '@types/sinonjs__fake-timers': 15.0.1
 
-  '@types/sinonjs__fake-timers@8.1.5': {}
+  '@types/sinonjs__fake-timers@15.0.1': {}
 
   '@types/stack-utils@2.0.3': {}
 

@@ -42,7 +42,7 @@
     "@stylistic/eslint-plugin": "^5.10.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.13.2",
-    "@types/sinon": "^21.0.1",
+    "@types/sinon": "^22.0.0",
     "@vercel/ncc": "^0.44.1",
     "conventional-changelog-conventionalcommits": "^10.2.1",
     "eslint": "^10.6.0",
