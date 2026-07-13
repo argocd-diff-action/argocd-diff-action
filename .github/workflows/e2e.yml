@@ -44,12 +44,12 @@ jobs:
           - v3.1.16
           - v3.2.12
           - v3.3.12
-          - v3.4.4
+          - v3.4.5
         # Only the newest version posts a diff comment to the PR (to demonstrate
         # the comment path without noise). The bump workflow moves this flag to
         # the newest pin automatically.
         include:
-          - argocd-version: v3.4.4
+          - argocd-version: v3.4.5
             comment-on-pr: true
     steps:
       - name: Checkout
