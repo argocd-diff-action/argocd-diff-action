@@ -1,6 +1,6 @@
 import { platform } from 'os';
 
-import { expect, test } from '@jest/globals';
+import { expect, test } from 'vitest';
 import { execCommand, type ExecResult, scrubSecrets } from '../src/lib.js';
 
 test('scrubSecrets replaces auth-token with ***', () => {

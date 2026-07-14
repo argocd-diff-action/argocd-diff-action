@@ -73,14 +73,6 @@ export default tseslint.config(
         },
     },
     {
-        files: ['__tests__/**', '__mocks__/**'],
-        languageOptions: {
-            globals: {
-                ...globals.jest,
-            },
-        },
-    },
-    {
         // Plain JavaScript files cannot carry type annotations, so TypeScript
         // syntax rules that demand them are unsatisfiable here.
         files: ['**/*.{js,mjs,cjs}'],

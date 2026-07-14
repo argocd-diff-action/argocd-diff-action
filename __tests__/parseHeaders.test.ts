@@ -1,4 +1,4 @@
-import { expect, test } from '@jest/globals';
+import { expect, test } from 'vitest';
 import { parseHeaders } from '../src/getActionInput.js';
 
 test('parseHeaders with a single header', () => {
