@@ -1,13 +1,12 @@
 import * as core from '@actions/core';
-import { expect, jest, test } from '@jest/globals';
+import { expect, test, vi } from 'vitest';
 import getActionInput from '../src/getActionInput.js';
 
-// @actions/core is auto-mocked (see __mocks__/@actions/core.js) because it is
-// ESM-only and can't load under the CommonJS test runner, so getInput is a bare
-// jest.fn(). Drive it directly to feed inputs into getActionInput. clearMocks is
-// enabled in jest.config.ts, so each test sets its own implementation.
+vi.mock('@actions/core');
+
+// clearMocks is enabled in vitest.config.ts, so each test sets its own inputs.
 function mockInputs(inputs: Record<string, string>): void {
-    jest.mocked(core.getInput).mockImplementation((name: string) => inputs[name] ?? '');
+    vi.mocked(core.getInput).mockImplementation((name: string) => inputs[name] ?? '');
 }
 
 test('getActionInput parses inputs into an ActionInput', () => {

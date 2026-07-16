@@ -12,11 +12,12 @@ A GitHub Action (TypeScript, runs on `node24`) that, on a PR, finds every ArgoCD
 nvm use                      # Node 24 (see .nvmrc)
 pnpm i --frozen-lockfile     # install (pnpm is required; corepack)
 pnpm run build               # bundle src/ -> dist/index.js via @vercel/ncc
-pnpm run test                # jest --coverage
+pnpm run test                # vitest run --coverage
+pnpm run typecheck           # tsc --noEmit
 pnpm run lint                # eslint (lint:fix to autofix)
 
-pnpm exec jest __tests__/argocd/ArgoCDServer.test.ts   # single test file
-pnpm exec jest -t 'throws on 401'                       # single test by name
+pnpm exec vitest run __tests__/argocd/ArgoCDServer.test.ts   # single test file
+pnpm exec vitest run -t 'throws on 401'                       # single test by name
 ```
 
 `test.sh` is a manual end-to-end smoke test that builds and runs `dist/index.js` against a real ArgoCD server using `INPUT_*` env vars — it is **not** part of `pnpm run test` and needs real credentials.
@@ -27,7 +28,9 @@ pnpm exec jest -t 'throws on 401'                       # single test by name
 
 ## Module system gotcha
 
-Source is ESM (`"type": "module"`, `module: NodeNext`), so **relative imports must use `.js` extensions even though the files are `.ts`** (e.g. `import { ArgoCDServer } from './argocd/ArgoCDServer.js'`). Tests transpile to CommonJS via ts-jest (`jest.config.ts`), and `moduleNameMapper` rewrites those `.js` specifiers back — match the existing import style or both build and tests break.
+Source is ESM (`"type": "module"`, `module: NodeNext`), so **relative imports must use `.js` extensions even though the files are `.ts`** (e.g. `import { ArgoCDServer } from './argocd/ArgoCDServer.js'`). Vitest runs the suite as native ESM and resolves those specifiers itself — match the existing import style or the build breaks.
+
+Vitest does not type-check; `pnpm run typecheck` (`tsc --noEmit`) is what catches type errors, and CI runs it as its own step.
 
 ## Execution flow (src/main.ts)
 

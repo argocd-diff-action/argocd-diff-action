@@ -1,4 +1,4 @@
-import { expect, test } from '@jest/globals';
+import { expect, test } from 'vitest';
 
 import { type App } from '../../src/argocd/App.js';
 import { AppCollection } from '../../src/argocd/AppCollection.js';

@@ -1,7 +1,6 @@
 import { downloadTool } from '@actions/tool-cache';
-import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
-import sinon from 'sinon'; // Used for fs because it doesn't work with jest.
-import fs from 'fs';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { rmSync } from 'fs';
 import fetchMock from 'fetch-mock';
 
 import { type App } from '../../src/argocd/App.js';
@@ -12,31 +11,29 @@ import { type Diff } from '../../src/Diff.js';
 import { type AppTargetRevision } from '../../src/argocd/AppTargetRevision.js';
 import { ActionInput } from '../../src/getActionInput.js';
 
-// Replaces with jest.fn (auto-mock).
-jest.mock('@actions/tool-cache');
-const mockedDownloadTool = jest.mocked(downloadTool);
+vi.mock('@actions/tool-cache');
+const mockedDownloadTool = vi.mocked(downloadTool);
 
-jest.mock('../../src/lib');
-const mockedExecCommand = jest.mocked(execCommand);
+vi.mock('../../src/lib.js');
+const mockedExecCommand = vi.mocked(execCommand);
+
+// Only the binary-writing calls are stubbed; the rest of fs stays real.
+vi.mock('fs', async importOriginal => ({
+    ...await importOriginal<typeof import('fs')>(),
+    chmodSync: vi.fn(),
+    rmSync: vi.fn(),
+}));
 
 describe('ArgoCDServer tests', function () {
-    let chmodSync: sinon.SinonStub<[path: fs.PathLike, mode: fs.Mode], void>;
-    let rmSync: sinon.SinonStub<[path: fs.PathLike, options?: fs.RmOptions], void>;
-
-    // rest the changes made by mockreturnvauleonce
     beforeEach(() => {
         fetchMock.mockGlobal();
+        // clearMocks only clears call history, so queued *Once implementations
+        // would otherwise leak into the next test.
         mockedDownloadTool.mockReset();
         mockedExecCommand.mockReset();
-        // Create stub for fs.chmodSync with a return value of `void`.
-        chmodSync = sinon.stub(fs, 'chmodSync');
-        rmSync = sinon.stub(fs, 'rmSync');
     });
 
     afterEach(() => {
-    // Revert stub setup on chmodSync, in case other tests need it.
-        chmodSync.restore();
-        rmSync.restore();
         fetchMock.clearHistory();
         fetchMock.removeRoutes();
         fetchMock.unmockGlobal();
@@ -111,7 +108,7 @@ describe('ArgoCDServer tests', function () {
 
         // downloadTool errors if the destination already exists, so a prior
         // binary must be cleared first.
-        expect(rmSync.calledOnceWith('bin/argo', { force: true })).toBe(true);
+        expect(rmSync).toHaveBeenCalledExactlyOnceWith('bin/argo', { force: true });
     });
 
     test('ArgoCDServer getAppDiff returns an error', async () => {
