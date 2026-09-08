@@ -124,6 +124,8 @@ service directly:
 
 - Requires `argocd-version >= v2.1.0` to support use of [the `--exit-code=false` option on
   `app diff`](https://github.com/argoproj/argo-cd/commit/2faa08e710b6da3fdfa88eb1491de0648d004a19).
+- Diffing multi-source Applications requires `argocd-version >= v2.11.0`, where `app diff` gained
+  `--revisions` and `--source-positions`.
 
 ## How it works
 
@@ -131,12 +133,30 @@ service directly:
 2. Fetches all the Applications from the ArgoCD API using the `argocd-token`.
 3. Filters the Applications to the ones that are sourced from the current repo (using the context of the action),
    targeting the trunk of the repo, and are not in an excluded path.
-4. Runs `argocd app diff --local <path>` for each Application (or `--server-side-generate` against the whole checkout when
-   `argocd-server-side-generate` is enabled — required for Config Management Plugins).
-5. If in the Application diff there is an Application with a change to its `targetRevision`, get the diff for it using
+4. Runs `argocd app diff --local <path>` for each single-source Application (or `--server-side-generate` against the
+   whole checkout when `argocd-server-side-generate` is enabled — required for Config Management Plugins).
+5. Runs `argocd app diff --revisions <sha> --source-positions <n>` for each multi-source Application, see below.
+6. If in the Application diff there is an Application with a change to its `targetRevision`, get the diff for it using
    `--revision`.
     - Note that this won't include any other changes to the App of App (e.g., Helm value changes).
-6. Posts the diff output as a comment on the PR (updating the same comment if it already exists).
+7. Posts the diff output as a comment on the PR (updating the same comment if it already exists).
+
+### Multi-source Applications
+
+An Application that declares `spec.sources` is diffed against the commit under review rather than against the
+checkout, because `--local` cannot address one source of a multi-source Application: for uploaded files the ArgoCD
+server renders `spec.sources[0]` only, and the protocol carries no source position. `app diff` instead takes
+`--revisions` paired with `--source-positions`, which is what this action uses.
+
+Only the sources whose `repoURL` matches the current repo are moved to the commit under review. Every other source
+stays at the revision the Application declares, so a chart pulled from a registry keeps its pinned version and the
+diff shows what the change to this repo does on its own.
+
+Two consequences follow from diffing a revision instead of the checkout:
+
+- The commit has to be reachable by the ArgoCD server, so a pull request from a fork cannot be diffed this way.
+- Nothing local participates: uncommitted files, a local `helm dependency update`, and paths resolved relative to the
+  checkout root do not apply to these Applications.
 
 ## Releases & Publishing
 

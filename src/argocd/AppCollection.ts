@@ -1,4 +1,4 @@
-import { type App } from './App.js';
+import { type App, appSources } from './App.js';
 
 export class AppCollection {
     apps: App[];
@@ -18,7 +18,15 @@ export class AppCollection {
 
         return new AppCollection(
             this.apps.filter((app) => {
-                return app.spec.source?.path !== undefined && !excludedPaths.includes(app.spec.source.path);
+                const paths = appSources(app)
+                    .map(source => source.path)
+                    .filter((path): path is string => path !== undefined);
+
+                if (paths.length === 0) {
+                    return false;
+                }
+
+                return !paths.some(path => excludedPaths.includes(path));
             }),
         );
     }
@@ -30,8 +38,9 @@ export class AppCollection {
 
         return new AppCollection(
             this.apps.filter((app) => {
-                console.log(app);
-                return app.spec.source?.repoURL !== undefined && app.spec.source.repoURL.includes(repoMatch);
+                return appSources(app).some(
+                    source => source.repoURL !== undefined && source.repoURL.includes(repoMatch),
+                );
             }),
         );
     }
@@ -40,9 +49,13 @@ export class AppCollection {
         if (this.apps.length === 0) {
             return this;
         }
+
         return new AppCollection(
             this.apps.filter((app) => {
-                return app.spec.source?.targetRevision !== undefined && targetRevisions.includes(app.spec.source.targetRevision);
+                return appSources(app).some(
+                    source => source.targetRevision !== undefined
+                        && targetRevisions.includes(source.targetRevision),
+                );
             }),
         );
     }

@@ -116,3 +116,73 @@ function appThree(): App {
 function appCollection(): AppCollection {
     return new AppCollection([appOne(), appTwo(), appThree()]);
 }
+
+test('filterByRepo keeps a multi-source app matched by a source other than the first', () => {
+    expect(multiSourceAppCollection().filterByRepo('argocd-diff-action/values-repo')).toStrictEqual(
+        new AppCollection([appFour()]),
+    );
+});
+
+test('filterByRepo drops a multi-source app when no source matches', () => {
+    expect(multiSourceAppCollection().filterByRepo('argocd-diff-action/other-repo')).toStrictEqual(
+        new AppCollection([]),
+    );
+});
+
+test('filterByTargetRevision keeps a multi-source app by the revision of any of its sources', () => {
+    expect(multiSourceAppCollection().filterByTargetRevision(['main'])).toStrictEqual(
+        new AppCollection([appFour()]),
+    );
+});
+
+test('filterByTargetRevision drops a multi-source app when no source targets the trunk', () => {
+    expect(multiSourceAppCollection().filterByTargetRevision(['master'])).toStrictEqual(
+        new AppCollection([]),
+    );
+});
+
+test('filterByExcludedPath excludes a multi-source app by the path of any of its sources', () => {
+    expect(multiSourceAppCollection().filterByExcludedPath(['charts/app-four'])).toStrictEqual(
+        new AppCollection([]),
+    );
+});
+
+test('filterByExcludedPath keeps a multi-source app whose paths are not excluded', () => {
+    expect(multiSourceAppCollection().filterByExcludedPath(['deploy/app-one'])).toStrictEqual(
+        multiSourceAppCollection(),
+    );
+});
+
+// A chart pulled from a registry plus a values-only `ref` source in the repo
+// under review, which is the shape `argocd app diff --source-positions` targets.
+function appFour(): App {
+    return {
+        metadata: {
+            name: 'app-four',
+        },
+        spec: {
+            sources: [
+                {
+                    repoURL: 'oci://registry.example/charts/app-four',
+                    path: 'charts/app-four',
+                    targetRevision: '1.0.0',
+                    helm: {},
+                },
+                {
+                    repoURL: 'https://github.com/argocd-diff-action/values-repo',
+                    targetRevision: 'main',
+                    ref: 'values',
+                },
+            ],
+        },
+        status: {
+            sync: {
+                status: 'Synced',
+            },
+        },
+    };
+}
+
+function multiSourceAppCollection(): AppCollection {
+    return new AppCollection([appFour()]);
+}
