@@ -194,6 +194,74 @@ describe('ArgoCDServer tests', function () {
             } --revision=1.2.2 --exit-code=false --auth-token=fakeArgoCdToken --server=argocd.example --header "Authorization: Bearer super-secret-bearer-token" --header "X-Example-Header: Some custom value"`,
         );
     });
+
+    test('A multi-source app is diffed with --revisions and --source-positions for the sources of this repo', async () => {
+        const diffs: Diff[] = [{ app: appFour(), diff: exceCommandAppRevisionDiff().stdout }];
+        mockedExecCommand.mockReturnValueOnce(Promise.resolve(exceCommandAppRevisionDiff()));
+
+        await expect(
+            argocdServer().getAppCollectionMultiSourceDiffs(
+                multiSourceAppCollection(),
+                'argocd-diff-action/values-repo',
+                'deadbeef',
+            ),
+        ).resolves.toStrictEqual(diffs);
+        expect(mockedExecCommand).toHaveBeenCalledTimes(1);
+        expect(mockedExecCommand).toHaveBeenCalledWith(
+            `bin/argo app diff --local-repo-root=${process.cwd()} ${
+                appFour().metadata.name
+            } --revisions=deadbeef --source-positions=2 --exit-code=false --auth-token=fakeArgoCdToken --server=argocd.example --header "Authorization: Bearer super-secret-bearer-token" --header "X-Example-Header: Some custom value"`,
+        );
+    });
+
+    test('A multi-source app matching more than one source emits a revision per position', async () => {
+        mockedExecCommand.mockReturnValueOnce(Promise.resolve(exceCommandAppRevisionDiff()));
+
+        await argocdServer().getAppCollectionMultiSourceDiffs(
+            new AppCollection([appFive()]),
+            'argocd-diff-action/app-five',
+            'deadbeef',
+        );
+
+        expect(mockedExecCommand).toHaveBeenCalledWith(
+            `bin/argo app diff --local-repo-root=${process.cwd()} ${
+                appFive().metadata.name
+            } --revisions=deadbeef --source-positions=1 --revisions=deadbeef --source-positions=2 --exit-code=false --auth-token=fakeArgoCdToken --server=argocd.example --header "Authorization: Bearer super-secret-bearer-token" --header "X-Example-Header: Some custom value"`,
+        );
+    });
+
+    test('Single-source apps are left to the local diff', async () => {
+        await expect(
+            argocdServer().getAppCollectionMultiSourceDiffs(
+                appCollection(),
+                'argocd-diff-action/app-one',
+                'deadbeef',
+            ),
+        ).resolves.toStrictEqual([]);
+        expect(mockedExecCommand).not.toHaveBeenCalled();
+    });
+
+    test('A multi-source app with no source in this repo is not diffed', async () => {
+        await expect(
+            argocdServer().getAppCollectionMultiSourceDiffs(
+                multiSourceAppCollection(),
+                'argocd-diff-action/other-repo',
+                'deadbeef',
+            ),
+        ).resolves.toStrictEqual([]);
+        expect(mockedExecCommand).not.toHaveBeenCalled();
+    });
+
+    test('A multi-source app is not diffed without a revision', async () => {
+        await expect(
+            argocdServer().getAppCollectionMultiSourceDiffs(
+                multiSourceAppCollection(),
+                'argocd-diff-action/values-repo',
+                '',
+            ),
+        ).resolves.toStrictEqual([]);
+        expect(mockedExecCommand).not.toHaveBeenCalled();
+    });
 });
 
 function appOne(): App {
@@ -342,5 +410,69 @@ function exceCommandAppRevisionDiff(): ExecResult {
     >     helm.sh/chart: app-three-1.2.2
     270d369
     `,
+    };
+}
+
+// A chart pulled from a registry plus a values-only `ref` source in the repo
+// under review, which is the shape `argocd app diff --source-positions` targets.
+function appFour(): App {
+    return {
+        metadata: {
+            name: 'app-four',
+        },
+        spec: {
+            sources: [
+                {
+                    repoURL: 'oci://registry.example/charts/app-four',
+                    path: 'charts/app-four',
+                    targetRevision: '1.0.0',
+                    helm: {},
+                },
+                {
+                    repoURL: 'https://github.com/argocd-diff-action/values-repo',
+                    targetRevision: 'main',
+                    ref: 'values',
+                },
+            ],
+        },
+        status: {
+            sync: {
+                status: 'Synced',
+            },
+        },
+    };
+}
+
+function multiSourceAppCollection(): AppCollection {
+    return new AppCollection([appFour()]);
+}
+
+// Both sources in the repo under review: the chart by path and the values as a
+// `ref`, so every position moves to the revision under review.
+function appFive(): App {
+    return {
+        metadata: {
+            name: 'app-five',
+        },
+        spec: {
+            sources: [
+                {
+                    repoURL: 'https://github.com/argocd-diff-action/app-five',
+                    path: 'charts/app-five',
+                    targetRevision: 'main',
+                    helm: {},
+                },
+                {
+                    repoURL: 'https://github.com/argocd-diff-action/app-five',
+                    targetRevision: 'main',
+                    ref: 'values',
+                },
+            ],
+        },
+        status: {
+            sync: {
+                status: 'Synced',
+            },
+        },
     };
 }

@@ -2,7 +2,7 @@ import { chmodSync, rmSync } from 'fs';
 import * as core from '@actions/core';
 import { downloadTool } from '@actions/tool-cache';
 
-import { type App } from './App.js';
+import { type App, hasMultipleSources, matchingSourcePositions } from './App.js';
 import { AppCollection } from './AppCollection.js';
 import { type AppTargetRevision } from './AppTargetRevision.js';
 import { type Diff } from '../Diff.js';
@@ -82,6 +82,27 @@ export class ArgoCDServer {
 
     async getAppRevisionDiff(app: App, targetRevision: string): Promise<Diff> {
         return this.getAppDiff(app, [`--revision=${targetRevision}`]);
+    }
+
+    // Multi-source Apps cannot be diffed with `--local`: for uploaded files the
+    // server renders `spec.sources[0]` only (Application.GetSource() returns the
+    // first source) and the protocol carries no source position, so the local
+    // path would silently diff the wrong source. `--revisions` with
+    // `--source-positions` is the one mode the CLI implements for multi-source,
+    // and it targets exactly the sources that belong to this repo. `--revisions`
+    // is repeatable and the CLI requires one revision per position, so they are
+    // emitted in pairs.
+    async getAppMultiSourceDiff(
+        app: App,
+        revision: string,
+        sourcePositions: number[],
+    ): Promise<Diff> {
+        const params = sourcePositions.flatMap(position => [
+            `--revisions=${revision}`,
+            `--source-positions=${position}`,
+        ]);
+
+        return this.getAppDiff(app, params);
     }
 
     async getAppDiff(app: App, params: string[] = []): Promise<Diff> {
@@ -174,6 +195,48 @@ export class ArgoCDServer {
                 appCollectionDiffPromises.push(this.getAppLocalDiff(app));
             }
         });
+        return this.getAppCollectionDiffs(appCollectionDiffPromises);
+    }
+
+    // Diffs the multi-source Apps of the collection against `revision`, which is
+    // the commit under review. Only the sources pointing at `repoMatch` move to
+    // that revision; the others stay at the revision the App declares, so a chart
+    // pulled from a registry keeps its pinned version.
+    async getAppCollectionMultiSourceDiffs(
+        appCollection: AppCollection,
+        repoMatch: string,
+        revision: string,
+    ): Promise<Diff[]> {
+        const appCollectionDiffPromises: Promise<Diff>[] = [];
+
+        appCollection.apps.forEach((app) => {
+            if (!hasMultipleSources(app)) {
+                return;
+            }
+
+            if (revision === '') {
+                core.warning(
+                    `Cannot diff multi-source Application '${app.metadata.name}': no revision to compare against.`,
+                );
+                return;
+            }
+
+            const sourcePositions = matchingSourcePositions(app, repoMatch);
+            if (sourcePositions.length === 0) {
+                core.warning(
+                    `Cannot diff multi-source Application '${app.metadata.name}': no source matches '${repoMatch}'.`,
+                );
+                return;
+            }
+
+            core.info(
+                `Diffing multi-source Application '${app.metadata.name}' at revision '${revision}' for source position(s) ${sourcePositions.join(', ')}.`,
+            );
+            appCollectionDiffPromises.push(
+                this.getAppMultiSourceDiff(app, revision, sourcePositions),
+            );
+        });
+
         return this.getAppCollectionDiffs(appCollectionDiffPromises);
     }
 

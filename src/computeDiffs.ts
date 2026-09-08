@@ -25,14 +25,26 @@ export async function computeDiffs(actionInput: ActionInput): Promise<Diff[] | n
     // We can only run `diff --local` on files that are for this current repo.
     // Filter Apps to those following the repo trunk, since that is what the PR is
     // comparing against (in most cases).
+    const repoMatch = `${github.context.repo.owner}/${github.context.repo.repo}`;
     const appLocalCollection = appAllCollection
-        .filterByRepo(`${github.context.repo.owner}/${github.context.repo.repo}`)
+        .filterByRepo(repoMatch)
         .filterByTargetRevision(actionInput.argocd.targetRevisions)
         .filterByExcludedPath(actionInput.argocd.excludePaths);
 
     core.info(`Found apps: ${appLocalCollection.apps.map(a => a.metadata.name).join(', ')}`);
 
-    const appDiffs = await argocdServer.getAppCollectionLocalDiffs(appLocalCollection);
+    // Single-source Apps are diffed against the checkout, multi-source ones
+    // against the commit under review, since `--local` cannot target one source
+    // of a multi-source App.
+    const revision = String(github.context.payload.pull_request?.head?.sha ?? github.context.sha);
+    const appDiffs = [
+        ...await argocdServer.getAppCollectionLocalDiffs(appLocalCollection),
+        ...await argocdServer.getAppCollectionMultiSourceDiffs(
+            appLocalCollection,
+            repoMatch,
+            revision,
+        ),
+    ];
 
     // Get diffs for apps of apps with targetRevision changes from local app diffs.
     // Note that this won't include any other changes to the App of App (e.g., Helm
