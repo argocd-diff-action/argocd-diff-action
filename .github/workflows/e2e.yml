@@ -184,5 +184,6 @@ jobs:
         if: failure()
         run: |
           kubectl -n argocd get pods || true
+          kubectl -n argocd get events --sort-by=.lastTimestamp || true
           kubectl -n argocd get svc argocd-server-nodeport -o wide || true
           argocd app get e2e-app --grpc-web || true
