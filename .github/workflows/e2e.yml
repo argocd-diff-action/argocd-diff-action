@@ -87,6 +87,13 @@ jobs:
           # annotation limit.
           kubectl apply --server-side -n argocd \
             -f "https://raw.githubusercontent.com/argoproj/argo-cd/${{ matrix.argocd-version }}/manifests/install.yaml"
+          # ECR Public rate-limits anonymous pulls from shared runner IPs (429),
+          # leaving redis in ImagePullBackOff. Pull the same tag from Google's
+          # Docker Hub mirror instead.
+          redis_image=$(kubectl -n argocd get deploy argocd-redis \
+            -o jsonpath='{.spec.template.spec.containers[?(@.name=="redis")].image}')
+          kubectl -n argocd set image deploy/argocd-redis \
+            redis="mirror.gcr.io/library/redis:${redis_image##*:}"
           # Let the first server generation finish bootstrapping before we touch
           # the admin credential. Otherwise it races our admin.password patch
           # below (and previously raced the auto-generated
@@ -115,6 +122,7 @@ jobs:
         run: |
           kubectl -n argocd rollout status deploy/argocd-server --timeout=300s
           kubectl -n argocd rollout status deploy/argocd-repo-server --timeout=300s
+          kubectl -n argocd rollout status deploy/argocd-redis --timeout=300s
           kubectl -n argocd rollout status statefulset/argocd-application-controller --timeout=300s
 
       - name: Install argocd CLI
@@ -183,5 +191,6 @@ jobs:
         if: failure()
         run: |
           kubectl -n argocd get pods || true
+          kubectl -n argocd get events --sort-by=.lastTimestamp || true
           kubectl -n argocd get svc argocd-server-nodeport -o wide || true
           argocd app get e2e-app --grpc-web || true
