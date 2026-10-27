@@ -42,14 +42,14 @@ jobs:
         # hand only to change how many minors are tracked.
         argocd-version:
           - v3.2.12
-          - v3.3.16
-          - v3.4.11
-          - v3.5.5
+          - v3.3.18
+          - v3.4.12
+          - v3.5.6
         # Only the newest version posts a diff comment to the PR (to demonstrate
         # the comment path without noise). The bump workflow moves this flag to
         # the newest pin automatically.
         include:
-          - argocd-version: v3.5.5
+          - argocd-version: v3.5.6
             comment-on-pr: true
     steps:
       - name: Checkout
