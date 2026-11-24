@@ -7,6 +7,7 @@ import { AppCollection } from './AppCollection.js';
 import { type AppTargetRevision } from './AppTargetRevision.js';
 import { type Diff } from '../Diff.js';
 import { type ExecResult, execCommand, scrubSecrets } from '../lib.js';
+import { stripUntrackedResources } from '../untracked.js';
 import { ActionInput } from '../getActionInput.js';
 import { URL } from 'node:url';
 
@@ -92,7 +93,13 @@ export class ArgoCDServer {
             );
             core.debug(`stdout: ${res.stdout}`);
             core.debug(`stderr: ${res.stderr}`);
-            return { app, diff: res.stdout };
+            const { diff, stripped } = stripUntrackedResources(res.stdout, app);
+            for (const header of stripped) {
+                core.info(
+                    `Skipped '${header}' in Application '${app.metadata.name}': ArgoCD does not track it (copied tracking ID).`,
+                );
+            }
+            return { app, diff };
         }
         catch (e) {
             res = e as ExecResult;
